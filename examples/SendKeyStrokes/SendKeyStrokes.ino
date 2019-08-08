@@ -50,14 +50,14 @@ void loop() {
     MediaKeyReport mediaKeyReport;
     mediaKeyReport[0] = 0xcd; // play/pause
     mediaKeyReport[1] = 0x00;
-    bleKeyboard.sendReport(&keyReport); // play/pause-key down
+    bleKeyboard.sendReport(&keyReport, 2); // play/pause-key down (2=MEDIA_KEYS_ID)
 
     delay(50);
 
     MediaKeyReport mediaKeyReport2;
     mediaKeyReport2[0] = 0x00;
     mediaKeyReport2[1] = 0x00;
-    bleKeyboard.sendReport(&keyReport2); // play/pause-key up
+    bleKeyboard.sendReport(&keyReport2, 2); // play/pause-key up  (2=MEDIA_KEYS_ID)
 
   }
   delay(5000);
