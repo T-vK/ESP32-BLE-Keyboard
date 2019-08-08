@@ -15,6 +15,8 @@ typedef struct
   uint8_t keys[6];
 } KeyReport;
 
+typedef uint8_t MediaKeyReport[2];
+
 class BleKeyboard {
 private:
   uint8_t _buttons;
@@ -22,14 +24,16 @@ private:
   BLEHIDDevice* hid;
   BLECharacteristic* inputKeyboard;
   BLECharacteristic* outputKeyboard;
+  BLECharacteristic* inputMediaKeys;
   KeyReport _keyReport;
+  MediaKeyReport _mediaKeyReport;
   void buttons(uint8_t b);
   static void taskServer(void* pvParameter);
 public:
-  BleKeyboard(std::string deviceName = "Espressif", std::string deviceManufacturer = "ESP32 Bluetooth Keyboard", uint8_t batteryLevel = 100);
+  BleKeyboard(std::string deviceName = "ESP32 Bluetooth Keyboard", std::string deviceManufacturer = "Espressif", uint8_t batteryLevel = 100);
   void begin(void);
   void end(void);
-  void sendReport(KeyReport* keys);
+  void sendReport(KeyReport* keys, char reportId=1);
   //size_t write(uint8_t k);
   //size_t write(const uint8_t *buffer, size_t size);
   //size_t press(uint8_t k);

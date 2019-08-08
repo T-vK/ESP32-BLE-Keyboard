@@ -72,6 +72,11 @@ Just remember that you have to use `bleKeyboard` instead of just `Keyboard` and 
 BleKeyboard bleKeyboard;
 ```
 
+There is also Bluetooth specific information that you can set (optional):
+Instead of `BleKeyboard bleKeyboard;` you can do `BleKeyboard bleKeyboard("Bluetooth Device Name", "Bluetooth Device Manufacturer", 100);`.
+The third parameter is the initial battery level of your device. To adjust the battery level later on you can simply call e.g.  `bleKeyboard.setBatteryLevel(50)` (set battery level to 50%).
+By default the battery level will be set to 100%, the device name will be `ESP32 Bluetooth Mouse` and the manufacturer will be `Espressif`.
+
 ## Credits
 
 Credits to [chegewara](https://github.com/chegewara) as this library is based on [this piece of code](https://github.com/nkolban/esp32-snippets/issues/230#issuecomment-473135679) that he provided.
