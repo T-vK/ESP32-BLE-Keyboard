@@ -22,8 +22,8 @@
 
 
 // Report IDs:
-char KEYBOARD_ID = 0x01;
-char MEDIA_KEYS_ID = 0x02;
+#define KEYBOARD_ID 0x01
+#define MEDIA_KEYS_ID 0x02
 
 static const uint8_t _hidReportDescriptor[] = {
   USAGE_PAGE(1),      0x01,          // USAGE_PAGE (Generic Desktop Ctrls)
@@ -60,24 +60,32 @@ static const uint8_t _hidReportDescriptor[] = {
   USAGE_MAXIMUM(1),   0x65,          //   USAGE_MAXIMUM (0x65)
   HIDINPUT(1),        0x00,          //   INPUT (Data,Array,Abs,No Wrap,Linear,Preferred State,No Null Position)
   END_COLLECTION(0),                 // END_COLLECTION
+  // ------------------------------------------------- Media Keys
   USAGE_PAGE(1),      0x0C,          // USAGE_PAGE (Consumer)
   USAGE(1),           0x01,          // USAGE (Consumer Control)
   COLLECTION(1),      0x01,          // COLLECTION (Application)
-  // ------------------------------------------------- Media Keys
   REPORT_ID(1),       MEDIA_KEYS_ID, //   REPORT_ID (2)
   USAGE_PAGE(1),      0x0C,          //   USAGE_PAGE (Consumer)
   LOGICAL_MINIMUM(1), 0x00,          //   LOGICAL_MINIMUM (0)
   LOGICAL_MAXIMUM(1), 0x01,          //   LOGICAL_MAXIMUM (1)
   REPORT_SIZE(1),     0x01,          //   REPORT_SIZE (1)
-  REPORT_COUNT(1),    0x07,          //   REPORT_COUNT (7)
-  USAGE(1),           0xB5,          //   USAGE (Scan Next Track)
-  USAGE(1),           0xB6,          //   USAGE (Scan Previous Track)
-  USAGE(1),           0xB7,          //   USAGE (Stop)
-  USAGE(1),           0xB8,          //   USAGE (Eject)
-  USAGE(1),           0xCD,          //   USAGE (Play/Pause)
-  USAGE(1),           0xE2,          //   USAGE (Mute)
-  USAGE(1),           0xE9,          //   USAGE (Volume Increment)
-  USAGE(1),           0xEA,          //   USAGE (Volume Decrement)
+  REPORT_COUNT(1),    0x0f,          //   REPORT_COUNT (16)
+  USAGE(1),           0xB5,          //   USAGE (Scan Next Track)     ; bit 0: 1
+  USAGE(1),           0xB6,          //   USAGE (Scan Previous Track) ; bit 1: 2
+  USAGE(1),           0xB7,          //   USAGE (Stop)                ; bit 2: 4
+  USAGE(1),           0xCD,          //   USAGE (Play/Pause)          ; bit 3: 8
+  USAGE(1),           0xE2,          //   USAGE (Mute)                ; bit 4: 16
+  USAGE(1),           0xE9,          //   USAGE (Volume Increment)    ; bit 5: 32
+  USAGE(1),           0xEA,          //   USAGE (Volume Decrement)    ; bit 6: 64
+  USAGE(2),           0x23, 0x02,    //   Usage (WWW Home)            ; bit 7: 128
+  USAGE(2),           0x94, 0x01,    //   Usage (My Computer) ; bit 0: 1
+  USAGE(2),           0x92, 0x01,    //   Usage (Calculator)  ; bit 1: 2
+  USAGE(2),           0x2a, 0x02,    //   Usage (WWW fav)     ; bit 2: 4
+  USAGE(2),           0x21, 0x02,    //   Usage (WWW search)  ; bit 3: 8
+  USAGE(2),           0x26, 0x02,    //   Usage (WWW stop)    ; bit 4: 16
+  USAGE(2),           0x24, 0x02,    //   Usage (WWW back)    ; bit 5: 32
+  USAGE(2),           0x83, 0x01,    //   Usage (Media sel)   ; bit 6: 64
+  USAGE(2),           0x8a, 0x01,    //   Usage (Mail)        ; bit 7: 128
   HIDINPUT(1),        0x02,          //   INPUT (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
   END_COLLECTION(0)                  // END_COLLECTION
 };
@@ -122,20 +130,21 @@ void BleKeyboard::releaseAll(void)
 }
 */
 
-void BleKeyboard::sendReport(KeyReport* keys, char reportId)
+void BleKeyboard::sendReport(KeyReport* keys)
 {
   if (this->isConnected())
   {
-    if (reportId == KEYBOARD_ID)
-    {
-      this->inputKeyboard->setValue((uint8_t*)keys, sizeof(KeyReport));
-      this->inputKeyboard->notify();
-    }
-    else if (reportId == MEDIA_KEYS_ID)
-    {
-      this->inputMediaKeys->setValue((uint8_t*)keys, sizeof(MediaKeyReport));
-      this->inputMediaKeys->notify();
-    }
+    this->inputKeyboard->setValue((uint8_t*)keys, sizeof(KeyReport));
+    this->inputKeyboard->notify();
+  }
+}
+
+void BleKeyboard::sendReport(MediaKeyReport* keys)
+{
+  if (this->isConnected())
+  {
+    this->inputMediaKeys->setValue((uint8_t*)keys, sizeof(MediaKeyReport));
+    this->inputMediaKeys->notify();
   }
 }
 
@@ -154,7 +163,7 @@ void BleKeyboard::taskServer(void* pvParameter) {
   pServer->setCallbacks(bleKeyboardInstance->connectionStatus);
 
   bleKeyboardInstance->hid = new BLEHIDDevice(pServer);
-  bleKeyboardInstance->inputKeyboard = bleKeyboardInstance->hid->inputReport(1); // <-- input REPORTID from report map
+  bleKeyboardInstance->inputKeyboard = bleKeyboardInstance->hid->inputReport(KEYBOARD_ID); // <-- input REPORTID from report map
   bleKeyboardInstance->outputKeyboard = bleKeyboardInstance->hid->outputReport(KEYBOARD_ID);
   bleKeyboardInstance->inputMediaKeys = bleKeyboardInstance->hid->inputReport(MEDIA_KEYS_ID);
   bleKeyboardInstance->connectionStatus->inputKeyboard = bleKeyboardInstance->inputKeyboard;

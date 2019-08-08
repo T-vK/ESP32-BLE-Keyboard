@@ -1,5 +1,5 @@
 /**
- * This example turns the ESP32 into a Bluetooth LE keyboard that types the letter `a` once every 5 seconds.
+ * This example turns the ESP32 into a Bluetooth LE keyboard that sends the `a`-key and the `Play/Pause`-key once every 5 seconds.
  */
 #include <BleKeyboard.h>
 
@@ -12,9 +12,9 @@ void setup() {
 }
 
 void loop() {
-  if(bleKeyboard.isConnected()) {
+if(bleKeyboard.isConnected()) {
+/*
     Serial.println("Pressing the a-key via the Bluetooth keyboard...");
-
     KeyReport keyReport;
     keyReport.modifiers = 0x00;
     keyReport.reserved = 0x00;
@@ -41,23 +41,22 @@ void loop() {
 
     bleKeyboard.sendReport(&keyReport2); // a-key up
 
+    delay(1000)
+*/
 
-    delay(1000);
-
-
-    Serial.println("Pressing the play/pause-key via the Bluetooth keyboard...");
+    Serial.println("Pressing the Play/Pause-key via the Bluetooth keyboard...");
 
     MediaKeyReport mediaKeyReport;
-    mediaKeyReport[0] = 0xcd; // play/pause
-    mediaKeyReport[1] = 0x00;
-    bleKeyboard.sendReport(&keyReport, 2); // play/pause-key down (2=MEDIA_KEYS_ID)
+    mediaKeyReport[0] = 8; // Play/Pause
+    mediaKeyReport[1] = 0;
+    bleKeyboard.sendReport(&mediaKeyReport); // play/pause-key down (2=MEDIA_KEYS_ID)
 
     delay(50);
 
     MediaKeyReport mediaKeyReport2;
-    mediaKeyReport2[0] = 0x00;
-    mediaKeyReport2[1] = 0x00;
-    bleKeyboard.sendReport(&keyReport2, 2); // play/pause-key up  (2=MEDIA_KEYS_ID)
+    mediaKeyReport2[0] = 0;
+    mediaKeyReport2[1] = 0;
+    bleKeyboard.sendReport(&mediaKeyReport2); // play/pause-key up (2=MEDIA_KEYS_ID)
 
   }
   delay(5000);
