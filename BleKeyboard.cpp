@@ -69,7 +69,7 @@ static const uint8_t _hidReportDescriptor[] = {
   LOGICAL_MINIMUM(1), 0x00,          //   LOGICAL_MINIMUM (0)
   LOGICAL_MAXIMUM(1), 0x01,          //   LOGICAL_MAXIMUM (1)
   REPORT_SIZE(1),     0x01,          //   REPORT_SIZE (1)
-  REPORT_COUNT(1),    0x0f,          //   REPORT_COUNT (16)
+  REPORT_COUNT(1),    0x0A,          //   REPORT_COUNT (16)
   USAGE(1),           0xB5,          //   USAGE (Scan Next Track)     ; bit 0: 1
   USAGE(1),           0xB6,          //   USAGE (Scan Previous Track) ; bit 1: 2
   USAGE(1),           0xB7,          //   USAGE (Stop)                ; bit 2: 4
@@ -80,12 +80,12 @@ static const uint8_t _hidReportDescriptor[] = {
   USAGE(2),           0x23, 0x02,    //   Usage (WWW Home)            ; bit 7: 128
   USAGE(2),           0x94, 0x01,    //   Usage (My Computer) ; bit 0: 1
   USAGE(2),           0x92, 0x01,    //   Usage (Calculator)  ; bit 1: 2
-  USAGE(2),           0x2a, 0x02,    //   Usage (WWW fav)     ; bit 2: 4
+  USAGE(2),           0x2A, 0x02,    //   Usage (WWW fav)     ; bit 2: 4
   USAGE(2),           0x21, 0x02,    //   Usage (WWW search)  ; bit 3: 8
   USAGE(2),           0x26, 0x02,    //   Usage (WWW stop)    ; bit 4: 16
   USAGE(2),           0x24, 0x02,    //   Usage (WWW back)    ; bit 5: 32
   USAGE(2),           0x83, 0x01,    //   Usage (Media sel)   ; bit 6: 64
-  USAGE(2),           0x8a, 0x01,    //   Usage (Mail)        ; bit 7: 128
+  USAGE(2),           0x8A, 0x01,    //   Usage (Mail)        ; bit 7: 128
   HIDINPUT(1),        0x02,          //   INPUT (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
   END_COLLECTION(0)                  // END_COLLECTION
 };
