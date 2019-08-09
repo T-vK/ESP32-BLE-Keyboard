@@ -43,7 +43,7 @@ if(bleKeyboard.isConnected()) {
 
     delay(1000)
 */
-
+/*
     Serial.println("Pressing the Play/Pause-key via the Bluetooth keyboard...");
 
     MediaKeyReport mediaKeyReport;
@@ -57,7 +57,10 @@ if(bleKeyboard.isConnected()) {
     mediaKeyReport2[0] = 0;
     mediaKeyReport2[1] = 0;
     bleKeyboard.sendReport(&mediaKeyReport2); // play/pause-key up (2=MEDIA_KEYS_ID)
+*/
 
+    bleKeyboard.write(KEY_MEDIA_PLAY_PAUSE);
+    Serial.println("Key sent!");
   }
   delay(5000);
 }
