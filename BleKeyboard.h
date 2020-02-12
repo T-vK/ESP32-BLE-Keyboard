@@ -89,7 +89,6 @@ typedef struct
 class BleKeyboard : public Print
 {
 private:
-  uint8_t _buttons;
   BleConnectionStatus* connectionStatus;
   BLEHIDDevice* hid;
   BLECharacteristic* inputKeyboard;
@@ -97,7 +96,6 @@ private:
   BLECharacteristic* inputMediaKeys;
   KeyReport _keyReport;
   MediaKeyReport _mediaKeyReport;
-  void buttons(uint8_t b);
   static void taskServer(void* pvParameter);
 public:
   BleKeyboard(std::string deviceName = "ESP32 BLE Keyboard", std::string deviceManufacturer = "Espressif", uint8_t batteryLevel = 100);
