@@ -1,6 +1,10 @@
 # ESP32 BLE Keyboard library
 
-This library allows you to make the ESP32 act as a Bluetooth Keyboard and control what it does.
+This library allows you to make the ESP32 act as a Bluetooth Keyboard and control what it does.  
+You might also be interested in:
+- [ESP32-BLE-Mouse](https://github.com/T-vK/ESP32-BLE-Mouse)
+- [ESP32-BLE-Gamepad](https://github.com/lemmingDev/ESP32-BLE-Gamepad)
+
 
 ## Features
 
@@ -9,6 +13,7 @@ This library allows you to make the ESP32 act as a Bluetooth Keyboard and contro
  - [x] Press/release individual keys
  - [x] Media keys are supported
  - [ ] Read Numlock/Capslock/Scrolllock state
+ - [x] Set battery level (basically works, but doesn't show up in Android's status bar)
  - [x] Compatible with Android
  - [x] Compatible with Windows
  - [x] Compatible with Linux
@@ -102,4 +107,4 @@ By default the battery level will be set to 100%, the device name will be `ESP32
 
 ## Credits
 
-Credits to [chegewara](https://github.com/chegewara) and [the authors of the USB keyboard library](https://github.com/arduino-libraries/Keyboard/) as this project is heavily based on their work! Also, credits to [duke2421](https://github.com/T-vK/ESP32-BLE-Keyboard/issues/1) who helped a lot with testing, debugging and fixing the device descriptor! 
+Credits to [chegewara](https://github.com/chegewara) and [the authors of the USB keyboard library](https://github.com/arduino-libraries/Keyboard/) as this project is heavily based on their work! Also, credits to [duke2421](https://github.com/T-vK/ESP32-BLE-Keyboard/issues/1) who helped a lot with testing, debugging and fixing the device descriptor!

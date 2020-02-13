@@ -12,7 +12,7 @@ void setup() {
 }
 
 void loop() {
-if(bleKeyboard.isConnected()) {
+  if(bleKeyboard.isConnected()) {
     Serial.println("Sending 'Hello world'...");
     bleKeyboard.print("Hello world");
 
@@ -34,8 +34,8 @@ if(bleKeyboard.isConnected()) {
     bleKeyboard.press(KEY_DELETE);
     delay(100);
     bleKeyboard.releaseAll();
-
   }
+
   Serial.println("Waiting 5 seconds...");
   delay(5000);
 }
