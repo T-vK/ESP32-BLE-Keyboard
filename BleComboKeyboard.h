@@ -1,5 +1,5 @@
-#ifndef ESP32_BLE_KEYBOARD_H
-#define ESP32_BLE_KEYBOARD_H
+#ifndef ESP32_BLE_COMBO_KEYBOARD_H
+#define ESP32_BLE_COMBO_KEYBOARD_H
 #include "sdkconfig.h"
 #if defined(CONFIG_BT_ENABLED)
 
@@ -86,7 +86,7 @@ typedef struct
   uint8_t keys[6];
 } KeyReport;
 
-class BleKeyboard : public Print
+class BleComboKeyboard : public Print
 {
 private:
   BleConnectionStatus* connectionStatus;
@@ -94,11 +94,14 @@ private:
   BLECharacteristic* inputKeyboard;
   BLECharacteristic* outputKeyboard;
   BLECharacteristic* inputMediaKeys;
+  
   KeyReport _keyReport;
   MediaKeyReport _mediaKeyReport;
   static void taskServer(void* pvParameter);
+
+
 public:
-  BleKeyboard(std::string deviceName = "ESP32 BLE Keyboard", std::string deviceManufacturer = "Espressif", uint8_t batteryLevel = 100);
+  BleComboKeyboard(std::string deviceName = "ESP32 Keyboard/Mouse", std::string deviceManufacturer = "Espressif", uint8_t batteryLevel = 100);
   void begin(void);
   void end(void);
   void sendReport(KeyReport* keys);
@@ -110,13 +113,17 @@ public:
   size_t write(uint8_t c);
   size_t write(const MediaKeyReport c);
   size_t write(const uint8_t *buffer, size_t size);
+  
   void releaseAll(void);
   bool isConnected(void);
   void setBatteryLevel(uint8_t level);
   uint8_t batteryLevel;
   std::string deviceManufacturer;
   std::string deviceName;
+
+  BLECharacteristic* inputMouse;
+
 };
 
 #endif // CONFIG_BT_ENABLED
-#endif // ESP32_BLE_KEYBOARD_H
+#endif // ESP32_BLE_COMBO_KEYBOARD_H
