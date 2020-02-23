@@ -6,7 +6,8 @@ This library allows you to make the ESP32 act as a Bluetooth keyboard and mouse 
 
  - [ ] Read Numlock/Capslock/Scrolllock state
  - [ ] Add gamepad support
- - [ ] Auto-instantiate Keyboard, Mouse objects (like the standard Arduino libraries)
+ - [x] Auto-instantiate Keyboard, Mouse objects (like the standard Arduino libraries)
+ - [ ] Optimize so that only needed classes get created for BLE.
 
 ## Installation
 - (Make sure you can use the ESP32 with the Arduino IDE. [Instructions can be found here.](https://github.com/espressif/arduino-esp32#installation-instructions))
