@@ -4,7 +4,8 @@
 # Class
 #######################################
 
-BleKeyboard	KEYWORD1
+BleComboKeyboard	KEYWORD1
+BleComboMouse	KEYWORD1
 
 #######################################
 # Methods and Functions
@@ -18,6 +19,7 @@ release	KEYWORD2
 releaseAll	KEYWORD2
 setBatteryLevel	KEYWORD2
 isConnected	KEYWORD2
+move KEYWORD2
 
 #######################################
 # Constants
