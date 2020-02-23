@@ -128,6 +128,7 @@ void BleKeyboard::taskServer(void* pvParameter) {
   bleKeyboardInstance->inputMediaKeys = bleKeyboardInstance->hid->inputReport(MEDIA_KEYS_ID);
   bleKeyboardInstance->connectionStatus->inputKeyboard = bleKeyboardInstance->inputKeyboard;
   bleKeyboardInstance->connectionStatus->outputKeyboard = bleKeyboardInstance->outputKeyboard;
+	bleKeyboardInstance->connectionStatus->inputMediaKeys = bleKeyboardInstance->inputMediaKeys;
 
   bleKeyboardInstance->outputKeyboard->setCallbacks(new KeyboardOutputCallbacks());
 
