@@ -43,7 +43,7 @@ void setup() {
 }
 
 void loop() {
-if(bleKeyboard.isConnected()) {
+  if(bleKeyboard.isConnected()) {
     Serial.println("Sending 'Hello world'...");
     bleKeyboard.print("Hello world");
 
