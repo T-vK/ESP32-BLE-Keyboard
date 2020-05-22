@@ -96,10 +96,11 @@ private:
   BLECharacteristic* inputMediaKeys;
   KeyReport _keyReport;
   MediaKeyReport _mediaKeyReport;
+  static uint32_t _pin;
   static void taskServer(void* pvParameter);
 public:
   BleKeyboard(std::string deviceName = "ESP32 BLE Keyboard", std::string deviceManufacturer = "Espressif", uint8_t batteryLevel = 100);
-  void begin(void);
+  void begin(uint32_t pin = 0);
   void end(void);
   void sendReport(KeyReport* keys);
   void sendReport(MediaKeyReport* keys);
