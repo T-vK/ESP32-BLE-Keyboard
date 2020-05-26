@@ -99,10 +99,15 @@ BleKeyboard::BleKeyboard(std::string deviceName, std::string deviceManufacturer,
   this->connectionStatus = new BleConnectionStatus();
 }
 
-void BleKeyboard::begin(uint32_t pin)
+void BleKeyboard::begin()
+{
+  xTaskCreate(this->taskServer, "server", 20000, (void *)this, 5, NULL);
+}
+
+void BleKeyboard::beginPIN(uint32_t pin)
 {
   _pin = pin;
-  xTaskCreate(this->taskServer, "server", 20000, (void *)this, 5, NULL);
+  begin();
 }
 
 void BleKeyboard::end(void)
