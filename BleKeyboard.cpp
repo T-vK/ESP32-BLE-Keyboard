@@ -149,6 +149,9 @@ void BleKeyboard::taskServer(void* pvParameter) {
   BLEAdvertising *pAdvertising = pServer->getAdvertising();
   pAdvertising->setAppearance(HID_KEYBOARD);
   pAdvertising->addServiceUUID(bleKeyboardInstance->hid->hidService()->getUUID());
+
+  bleKeyboardInstance->onAdvertising(pAdvertising);
+
   pAdvertising->start();
   bleKeyboardInstance->hid->setBatteryLevel(bleKeyboardInstance->batteryLevel);
 

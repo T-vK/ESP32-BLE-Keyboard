@@ -118,6 +118,7 @@ public:
   std::string deviceName;
 protected:
   virtual void onStarted(BLEServer *pServer) { };
+  virtual void onAdvertising(BLEAdvertising *pAdvertising) { };
 };
 
 #endif // CONFIG_BT_ENABLED
