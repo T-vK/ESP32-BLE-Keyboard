@@ -17,8 +17,8 @@ You might also be interested in:
  - [x] Compatible with Android
  - [x] Compatible with Windows
  - [x] Compatible with Linux
- - [ ] Compatible with MacOS X (Untested)
- - [ ] Compatible with iOS (Untested)
+ - [x] Compatible with MacOS X (not stable, some people have issues, doesn't work with old devices)
+ - [x] Compatible with iOS (not stable, some people have issues, doesn't work with old devices)
 
 ## Installation
 - (Make sure you can use the ESP32 with the Arduino IDE. [Instructions can be found here.](https://github.com/espressif/arduino-esp32#installation-instructions))
