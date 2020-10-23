@@ -96,6 +96,8 @@ private:
   BLECharacteristic* inputMediaKeys;
   KeyReport _keyReport;
   MediaKeyReport _mediaKeyReport;
+  BLEServer *pServer = NULL;
+
   static void taskServer(void* pvParameter);
 public:
   BleKeyboard(std::string deviceName = "ESP32 BLE Keyboard", std::string deviceManufacturer = "Espressif", uint8_t batteryLevel = 100);
@@ -116,6 +118,8 @@ public:
   uint8_t batteryLevel;
   std::string deviceManufacturer;
   std::string deviceName;
+
+  void startAdvertising();
 protected:
   virtual void onStarted(BLEServer *pServer) { };
 };
