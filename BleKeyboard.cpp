@@ -99,7 +99,8 @@ BleKeyboard::BleKeyboard(std::string deviceName, std::string deviceManufacturer,
 
 void BleKeyboard::begin(void)
 {
-  xTaskCreate(this->taskServer, "server", 20000, (void *)this, 5, NULL);
+  // xTaskCreate(this->taskServer, "server", 4096, (void *)this, 5, NULL);
+	this->taskServer((void *)this);
 }
 
 void BleKeyboard::end(void)
@@ -119,10 +120,10 @@ void BleKeyboard::setBatteryLevel(uint8_t level) {
 void BleKeyboard::taskServer(void* pvParameter) {
   BleKeyboard* bleKeyboardInstance = (BleKeyboard *) pvParameter; //static_cast<BleKeyboard *>(pvParameter);
   BLEDevice::init(bleKeyboardInstance->deviceName);
-  BLEServer *pServer = BLEDevice::createServer();
-  pServer->setCallbacks(bleKeyboardInstance->connectionStatus);
+  bleKeyboardInstance->pServer = BLEDevice::createServer();
+  bleKeyboardInstance->pServer->setCallbacks(bleKeyboardInstance->connectionStatus);
 
-  bleKeyboardInstance->hid = new BLEHIDDevice(pServer);
+  bleKeyboardInstance->hid = new BLEHIDDevice(bleKeyboardInstance->pServer);
   bleKeyboardInstance->inputKeyboard = bleKeyboardInstance->hid->inputReport(KEYBOARD_ID); // <-- input REPORTID from report map
   bleKeyboardInstance->outputKeyboard = bleKeyboardInstance->hid->outputReport(KEYBOARD_ID);
   bleKeyboardInstance->inputMediaKeys = bleKeyboardInstance->hid->inputReport(MEDIA_KEYS_ID);
@@ -144,9 +145,9 @@ void BleKeyboard::taskServer(void* pvParameter) {
   bleKeyboardInstance->hid->reportMap((uint8_t*)_hidReportDescriptor, sizeof(_hidReportDescriptor));
   bleKeyboardInstance->hid->startServices();
 
-  bleKeyboardInstance->onStarted(pServer);
+  bleKeyboardInstance->onStarted(bleKeyboardInstance->pServer);
 
-  BLEAdvertising *pAdvertising = pServer->getAdvertising();
+  BLEAdvertising *pAdvertising = bleKeyboardInstance->pServer->getAdvertising();
   pAdvertising->setAppearance(HID_KEYBOARD);
   pAdvertising->addServiceUUID(bleKeyboardInstance->hid->hidService()->getUUID());
   pAdvertising->setScanResponse(false);
@@ -154,7 +155,12 @@ void BleKeyboard::taskServer(void* pvParameter) {
   bleKeyboardInstance->hid->setBatteryLevel(bleKeyboardInstance->batteryLevel);
 
   ESP_LOGD(LOG_TAG, "Advertising started!");
-  vTaskDelay(portMAX_DELAY); //delay(portMAX_DELAY);
+  // vTaskDelay(portMAX_DELAY); //delay(portMAX_DELAY);
+}
+
+void BleKeyboard::startAdvertising()
+{
+  this->pServer->startAdvertising();
 }
 
 void BleKeyboard::sendReport(KeyReport* keys)
