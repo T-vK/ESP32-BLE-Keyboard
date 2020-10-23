@@ -5,6 +5,8 @@
 
 BleKeyboard bleKeyboard;
 
+bool isreconnect = false;
+
 void setup() {
   Serial.begin(115200);
   Serial.println("Starting BLE work!");
@@ -13,6 +15,10 @@ void setup() {
 
 void loop() {
   if(bleKeyboard.isConnected()) {
+    if(isreconnect){
+      isreconnect = false;
+      bleKeyboard.startAdvertising();
+    }
     Serial.println("Sending 'Hello world'...");
     bleKeyboard.print("Hello world");
 
@@ -34,6 +40,8 @@ void loop() {
     bleKeyboard.press(KEY_DELETE);
     delay(100);
     bleKeyboard.releaseAll();
+  }else{
+    isreconnect = true;
   }
 
   Serial.println("Waiting 5 seconds...");
