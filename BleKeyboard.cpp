@@ -97,13 +97,17 @@ BleKeyboard::BleKeyboard(std::string deviceName, std::string deviceManufacturer,
   this->connectionStatus = new BleConnectionStatus();
 }
 
+
+TaskHandle_t xHandle = NULL;
+
 void BleKeyboard::begin(void)
 {
-  xTaskCreate(this->taskServer, "server", 20000, (void *)this, 5, NULL);
+  xTaskCreate(this->taskServer, "server", 20000, (void *)this, 5, &xHandle);
 }
 
 void BleKeyboard::end(void)
 {
+    vTaskDelete(xHandle);
 }
 
 bool BleKeyboard::isConnected(void) {
