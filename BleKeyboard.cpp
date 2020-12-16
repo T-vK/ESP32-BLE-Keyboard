@@ -99,7 +99,7 @@ BleKeyboard::BleKeyboard(std::string deviceName, std::string deviceManufacturer,
 
 void BleKeyboard::begin(void)
 {
-  xTaskCreate(this->taskServer, "server", 20000, (void *)this, 5, NULL);
+  xTaskCreate(this->taskServer, "server", 10000, (void *)this, 5, NULL);
 }
 
 void BleKeyboard::end(void)
