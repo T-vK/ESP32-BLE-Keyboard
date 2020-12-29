@@ -102,7 +102,7 @@ TaskHandle_t xHandle = NULL;
 
 void BleKeyboard::begin(void)
 {
-  xTaskCreate(this->taskServer, "server", 20000, (void *)this, 5, &xHandle);
+  xTaskCreate(this->taskServer, "server", 4096, (void *)this, 5, &xHandle);
 }
 
 void BleKeyboard::end(void)
