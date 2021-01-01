@@ -19,7 +19,6 @@
   static const char* LOG_TAG = "BLEDevice";
 #endif
 
-
 // Report IDs:
 #define KEYBOARD_ID 0x01
 #define MEDIA_KEYS_ID 0x02
@@ -96,7 +95,6 @@ BleKeyboard::BleKeyboard(std::string deviceName, std::string deviceManufacturer,
   this->batteryLevel = batteryLevel;
   this->connectionStatus = new BleConnectionStatus();
 }
-
 
 TaskHandle_t xHandle = NULL;
 
