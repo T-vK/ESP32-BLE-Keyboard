@@ -3,7 +3,6 @@
 #include "sdkconfig.h"
 #if defined(CONFIG_BT_ENABLED)
 
-#include <Arduino.h>
 #include "KeyboardOutputCallbacks.h"
 #include "BleConnectionStatus.h"
 #include "BLEHIDDevice.h"
@@ -102,7 +101,7 @@ private:
   MediaKeyReport _mediaKeyReport;
   static void taskServer(void* pvParameter);
 public:
-  BleKeyboard(std::string deviceName = "ESP32_BLE_Keyboard_Test", std::string deviceManufacturer = "DIY", uint8_t batteryLevel = 100);
+  BleKeyboard(std::string deviceName = "ESP32 BLE Keyboard", std::string deviceManufacturer = "Espressif", uint8_t batteryLevel = 100);
   void begin(void);
   void end(void);
   void setLedChangeCallBack(void (*func)(KbdLeds*));
@@ -122,8 +121,7 @@ public:
   std::string deviceManufacturer;
   std::string deviceName;
 protected:
-  virtual void onStarted(BLEServer *pServer) { 
-  };
+  virtual void onStarted(BLEServer *pServer) { };
 };
 
 #endif // CONFIG_BT_ENABLED

@@ -16,4 +16,4 @@ void KeyboardOutputCallbacks::onWrite(BLECharacteristic* me) {
   ESP_LOGI(LOG_TAG, "special keys: %d", *kbled);
   // if(func!=NULL)
   func(kbled);
-}      
+}

@@ -21,7 +21,7 @@ using callBackFunc = void (*)(KbdLeds*);
 class KeyboardOutputCallbacks : public BLECharacteristicCallbacks
 {
 public:
-  callBackFunc func; //= [](KbdLeds*){ }
+  callBackFunc func = [](KbdLeds*){ };
   KeyboardOutputCallbacks(void);
   void onWrite(BLECharacteristic* me);
 };
