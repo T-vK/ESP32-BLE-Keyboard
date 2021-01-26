@@ -3,11 +3,12 @@
 #include "sdkconfig.h"
 #if defined(CONFIG_BT_ENABLED)
 
+#include <Arduino.h>
+#include "KeyboardOutputCallbacks.h"
 #include "BleConnectionStatus.h"
 #include "BLEHIDDevice.h"
 #include "BLECharacteristic.h"
 #include "Print.h"
-
 
 const uint8_t KEY_LEFT_CTRL = 0x80;
 const uint8_t KEY_LEFT_SHIFT = 0x81;
@@ -33,6 +34,8 @@ const uint8_t KEY_PAGE_DOWN = 0xD6;
 const uint8_t KEY_HOME = 0xD2;
 const uint8_t KEY_END = 0xD5;
 const uint8_t KEY_CAPS_LOCK = 0xC1;
+const uint8_t KEY_NUM_LOCK = 0xDB;
+const uint8_t KEY_SCROLL_LOCK = 0xCF;
 const uint8_t KEY_F1 = 0xC2;
 const uint8_t KEY_F2 = 0xC3;
 const uint8_t KEY_F3 = 0xC4;
@@ -78,7 +81,7 @@ const MediaKeyReport KEY_MEDIA_CONSUMER_CONTROL_CONFIGURATION = {0, 64}; // Medi
 const MediaKeyReport KEY_MEDIA_EMAIL_READER = {0, 128};
 
 
-//  Low level key report: up to 6 keys and shift, ctrl etc at once
+//  Low level key report: up to 6 keys and shift, ctrl etc at once // struct clone form USB_Host_Shield_2.0-master :D
 typedef struct
 {
   uint8_t modifiers;
@@ -89,7 +92,8 @@ typedef struct
 class BleKeyboard : public Print
 {
 private:
-  BleConnectionStatus* connectionStatus;
+  KeyboardOutputCallbacks* keyboardOutputCallBack;
+  BleConnectionStatus* connectionStatus; 
   BLEHIDDevice* hid;
   BLECharacteristic* inputKeyboard;
   BLECharacteristic* outputKeyboard;
@@ -98,9 +102,10 @@ private:
   MediaKeyReport _mediaKeyReport;
   static void taskServer(void* pvParameter);
 public:
-  BleKeyboard(std::string deviceName = "ESP32 BLE Keyboard", std::string deviceManufacturer = "Espressif", uint8_t batteryLevel = 100);
+  BleKeyboard(std::string deviceName = "ESP32_BLE_Keyboard_Test", std::string deviceManufacturer = "DIY", uint8_t batteryLevel = 100);
   void begin(void);
   void end(void);
+  void setLedChangeCallBack(void (*func)(KbdLeds*));
   void sendReport(KeyReport* keys);
   void sendReport(MediaKeyReport* keys);
   size_t press(uint8_t k);
@@ -117,7 +122,8 @@ public:
   std::string deviceManufacturer;
   std::string deviceName;
 protected:
-  virtual void onStarted(BLEServer *pServer) { };
+  virtual void onStarted(BLEServer *pServer) { 
+  };
 };
 
 #endif // CONFIG_BT_ENABLED

@@ -106,6 +106,11 @@ void BleKeyboard::end(void)
 {
 }
 
+void BleKeyboard::setLedChangeCallBack(void (*func)(KbdLeds*))
+{
+	keyboardOutputCallBack->func = func;
+}
+
 bool BleKeyboard::isConnected(void) {
   return this->connectionStatus->connected;
 }
@@ -128,9 +133,10 @@ void BleKeyboard::taskServer(void* pvParameter) {
   bleKeyboardInstance->inputMediaKeys = bleKeyboardInstance->hid->inputReport(MEDIA_KEYS_ID);
   bleKeyboardInstance->connectionStatus->inputKeyboard = bleKeyboardInstance->inputKeyboard;
   bleKeyboardInstance->connectionStatus->outputKeyboard = bleKeyboardInstance->outputKeyboard;
-	bleKeyboardInstance->connectionStatus->inputMediaKeys = bleKeyboardInstance->inputMediaKeys;
+  bleKeyboardInstance->connectionStatus->inputMediaKeys = bleKeyboardInstance->inputMediaKeys;
 
-  bleKeyboardInstance->outputKeyboard->setCallbacks(new KeyboardOutputCallbacks());
+  bleKeyboardInstance->keyboardOutputCallBack = new KeyboardOutputCallbacks();
+  bleKeyboardInstance->outputKeyboard->setCallbacks(bleKeyboardInstance->keyboardOutputCallBack);
 
   bleKeyboardInstance->hid->manufacturer()->setValue(bleKeyboardInstance->deviceManufacturer);
 
