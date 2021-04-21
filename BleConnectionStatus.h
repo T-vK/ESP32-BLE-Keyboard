@@ -17,6 +17,7 @@ public:
   BLECharacteristic* inputKeyboard;
   BLECharacteristic* outputKeyboard;
   BLECharacteristic* inputMediaKeys;
+  BLEAdvertising *pAdvertising;
 };
 
 #endif // CONFIG_BT_ENABLED
