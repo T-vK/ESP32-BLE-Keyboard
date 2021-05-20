@@ -52,10 +52,10 @@ static const uint8_t _hidReportDescriptor[] = {
   REPORT_COUNT(1),    0x06,          //   REPORT_COUNT (6) ; 6 bytes (Keys)
   REPORT_SIZE(1),     0x08,          //   REPORT_SIZE(8)
   LOGICAL_MINIMUM(1), 0x00,          //   LOGICAL_MINIMUM(0)
-  LOGICAL_MAXIMUM(1), 0x65,          //   LOGICAL_MAXIMUM(0x65) ; 101 keys
+  LOGICAL_MAXIMUM(1), 0x73,          //   LOGICAL_MAXIMUM(0x73) ; 115 keys
   USAGE_PAGE(1),      0x07,          //   USAGE_PAGE (Kbrd/Keypad)
   USAGE_MINIMUM(1),   0x00,          //   USAGE_MINIMUM (0)
-  USAGE_MAXIMUM(1),   0x65,          //   USAGE_MAXIMUM (0x65)
+  USAGE_MAXIMUM(1),   0x73,          //   USAGE_MAXIMUM (0x73) ; 115 keys
   HIDINPUT(1),        0x00,          //   INPUT (Data,Array,Abs,No Wrap,Linear,Preferred State,No Null Position)
   END_COLLECTION(0),                 // END_COLLECTION
   // ------------------------------------------------- Media Keys
