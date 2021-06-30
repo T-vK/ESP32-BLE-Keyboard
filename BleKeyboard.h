@@ -8,7 +8,7 @@
 #include "BLECharacteristic.h"
 #include "Print.h"
 
-#define BLE_KEYBOARD_VERSION "1.2"
+#define BLE_KEYBOARD_VERSION "1.3"
 
 const uint8_t KEY_LEFT_CTRL = 0x80;
 const uint8_t KEY_LEFT_SHIFT = 0x81;
