@@ -89,6 +89,8 @@ static const uint8_t _hidReportDescriptor[] = {
   END_COLLECTION(0)                  // END_COLLECTION
 };
 
+uint32_t BleKeyboard::_pin = 0;
+
 BleKeyboard::BleKeyboard(std::string deviceName, std::string deviceManufacturer, uint8_t batteryLevel) : hid(0)
 {
   this->deviceName = deviceName;
@@ -97,9 +99,15 @@ BleKeyboard::BleKeyboard(std::string deviceName, std::string deviceManufacturer,
   this->connectionStatus = new BleConnectionStatus();
 }
 
-void BleKeyboard::begin(void)
+void BleKeyboard::begin()
 {
   xTaskCreate(this->taskServer, "server", 20000, (void *)this, 5, NULL);
+}
+
+void BleKeyboard::beginPIN(uint32_t pin)
+{
+  _pin = pin;
+  begin();
 }
 
 void BleKeyboard::end(void)
@@ -144,7 +152,19 @@ void BleKeyboard::taskServer(void* pvParameter) {
 
   BLESecurity *pSecurity = new BLESecurity();
 
-  pSecurity->setAuthenticationMode(ESP_LE_AUTH_BOND);
+  if(_pin)
+  {
+    pSecurity->setAuthenticationMode(ESP_LE_AUTH_REQ_SC_BOND);
+    esp_ble_gap_set_security_param(ESP_BLE_SM_SET_STATIC_PASSKEY, &_pin, sizeof(_pin));
+    pSecurity->setCapability(ESP_IO_CAP_OUT);
+    pSecurity->setKeySize();
+    pSecurity->setAuthenticationMode(ESP_LE_AUTH_REQ_SC_ONLY);
+    pSecurity->setInitEncryptionKey(ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK);
+  }
+  else
+  {
+    pSecurity->setAuthenticationMode(ESP_LE_AUTH_BOND);
+  }
 
   bleKeyboardInstance->hid->reportMap((uint8_t*)_hidReportDescriptor, sizeof(_hidReportDescriptor));
   bleKeyboardInstance->hid->startServices();
