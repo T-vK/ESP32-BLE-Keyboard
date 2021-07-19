@@ -116,6 +116,11 @@ void BleKeyboard::setBatteryLevel(uint8_t level) {
     this->hid->setBatteryLevel(this->batteryLevel);
 }
 
+//must be called before begin in order to set the name
+void BleKeyboard::setName(std::string deviceName) {
+  this->deviceName = deviceName;
+}
+
 void BleKeyboard::taskServer(void* pvParameter) {
   BleKeyboard* bleKeyboardInstance = (BleKeyboard *) pvParameter; //static_cast<BleKeyboard *>(pvParameter);
   BLEDevice::init(bleKeyboardInstance->deviceName);
