@@ -113,6 +113,7 @@ public:
   void releaseAll(void);
   bool isConnected(void);
   void setBatteryLevel(uint8_t level);
+  void setName(std::string deviceName);  
   uint8_t batteryLevel;
   std::string deviceManufacturer;
   std::string deviceName;
