@@ -19,7 +19,6 @@
   static const char* LOG_TAG = "BLEDevice";
 #endif
 
-
 // Report IDs:
 #define KEYBOARD_ID 0x01
 #define MEDIA_KEYS_ID 0x02
@@ -53,10 +52,10 @@ static const uint8_t _hidReportDescriptor[] = {
   REPORT_COUNT(1),    0x06,          //   REPORT_COUNT (6) ; 6 bytes (Keys)
   REPORT_SIZE(1),     0x08,          //   REPORT_SIZE(8)
   LOGICAL_MINIMUM(1), 0x00,          //   LOGICAL_MINIMUM(0)
-  LOGICAL_MAXIMUM(1), 0x65,          //   LOGICAL_MAXIMUM(0x65) ; 101 keys
+  LOGICAL_MAXIMUM(1), 0x73,          //   LOGICAL_MAXIMUM(0x73) ; 115 keys
   USAGE_PAGE(1),      0x07,          //   USAGE_PAGE (Kbrd/Keypad)
   USAGE_MINIMUM(1),   0x00,          //   USAGE_MINIMUM (0)
-  USAGE_MAXIMUM(1),   0x65,          //   USAGE_MAXIMUM (0x65)
+  USAGE_MAXIMUM(1),   0x73,          //   USAGE_MAXIMUM (0x73) ; 115 keys
   HIDINPUT(1),        0x00,          //   INPUT (Data,Array,Abs,No Wrap,Linear,Preferred State,No Null Position)
   END_COLLECTION(0),                 // END_COLLECTION
   // ------------------------------------------------- Media Keys
@@ -97,13 +96,16 @@ BleKeyboard::BleKeyboard(std::string deviceName, std::string deviceManufacturer,
   this->connectionStatus = new BleConnectionStatus();
 }
 
+TaskHandle_t xHandle = NULL;
+
 void BleKeyboard::begin(void)
 {
-  xTaskCreate(this->taskServer, "server", 20000, (void *)this, 5, NULL);
+  xTaskCreate(this->taskServer, "server", 4096, (void *)this, 5, &xHandle);
 }
 
 void BleKeyboard::end(void)
 {
+    vTaskDelete(xHandle);
 }
 
 bool BleKeyboard::isConnected(void) {
