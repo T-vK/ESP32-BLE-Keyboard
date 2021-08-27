@@ -2,6 +2,7 @@
 #include <NimBLEDevice.h>
 #include <NimBLEServer.h>
 #include <NimBLEUtils.h>
+#include <NimBLEHIDDevice.h>
 #else
 #include <BLEDevice.h>
 #include <BLEUtils.h>
