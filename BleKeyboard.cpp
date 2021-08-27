@@ -96,8 +96,8 @@ static const uint8_t _hidReportDescriptor[] = {
 
 BleKeyboard::BleKeyboard(std::string deviceName, std::string deviceManufacturer, uint8_t batteryLevel) 
     : hid(0)
-    , deviceName(deviceName)
-    , deviceManufacturer(deviceManufacturer)
+    , deviceName(std::string(deviceName).substr(0, 15))
+    , deviceManufacturer(std::string(deviceManufacturer).substr(0,15))
     , batteryLevel(batteryLevel) {}
 
 void BleKeyboard::begin(void)
