@@ -156,6 +156,15 @@ void BleKeyboard::setName(std::string deviceName) {
   this->deviceName = deviceName;
 }
 
+/**
+ * @brief Sets the waiting time (in milliseconds) between multiple keystrokes in NimBLE mode.
+ * 
+ * @param ms Time in milliseconds
+ */
+void BleKeyboard::setDelay(uint32_t ms) {
+  this->_delay_ms = ms;
+}
+
 void BleKeyboard::sendReport(KeyReport* keys)
 {
   if (this->isConnected())
@@ -163,7 +172,8 @@ void BleKeyboard::sendReport(KeyReport* keys)
     this->inputKeyboard->setValue((uint8_t*)keys, sizeof(KeyReport));
     this->inputKeyboard->notify();
 #if defined(USE_NIMBLE)        
-    vTaskDelay(1);
+    // vTaskDelay(delayTicks);
+    this->delay_ms(_delay_ms);
 #endif // USE_NIMBLE
   }	
 }
@@ -175,7 +185,8 @@ void BleKeyboard::sendReport(MediaKeyReport* keys)
     this->inputMediaKeys->setValue((uint8_t*)keys, sizeof(MediaKeyReport));
     this->inputMediaKeys->notify();
 #if defined(USE_NIMBLE)        
-    vTaskDelay(1);
+    //vTaskDelay(delayTicks);
+    this->delay_ms(_delay_ms);
 #endif // USE_NIMBLE
   }	
 }
@@ -482,4 +493,15 @@ void BleKeyboard::onWrite(BLECharacteristic* me) {
   uint8_t* value = (uint8_t*)(me->getValue().c_str());
   (void)value;
   ESP_LOGI(LOG_TAG, "special keys: %d", *value);
+}
+
+void BleKeyboard::delay_ms(uint64_t ms) {
+  uint64_t m = esp_timer_get_time();
+  if(ms){
+    uint64_t e = (m + (ms * 1000));
+    if(m > e){ //overflow
+        while(esp_timer_get_time() > e) { }
+    }
+    while(esp_timer_get_time() < e) {}
+  }
 }
