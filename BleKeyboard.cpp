@@ -1,14 +1,19 @@
+#if defined(USE_NIMBLE)
+#include <NimBLEDevice.h>
+#include <NimBLEServer.h>
+#include <NimBLEUtils.h>
+#include <NimBLEHIDDevice.h>
+#else
 #include <BLEDevice.h>
 #include <BLEUtils.h>
 #include <BLEServer.h>
 #include "BLE2902.h"
 #include "BLEHIDDevice.h"
+#endif // USE_NIMBLE
 #include "HIDTypes.h"
 #include <driver/adc.h>
 #include "sdkconfig.h"
 
-#include "BleConnectionStatus.h"
-#include "KeyboardOutputCallbacks.h"
 #include "BleKeyboard.h"
 
 #if defined(CONFIG_ARDUHAL_ESP_LOG)
@@ -89,17 +94,47 @@ static const uint8_t _hidReportDescriptor[] = {
   END_COLLECTION(0)                  // END_COLLECTION
 };
 
-BleKeyboard::BleKeyboard(std::string deviceName, std::string deviceManufacturer, uint8_t batteryLevel) : hid(0)
-{
-  this->deviceName = deviceName;
-  this->deviceManufacturer = deviceManufacturer;
-  this->batteryLevel = batteryLevel;
-  this->connectionStatus = new BleConnectionStatus();
-}
+BleKeyboard::BleKeyboard(std::string deviceName, std::string deviceManufacturer, uint8_t batteryLevel) 
+    : hid(0)
+    , deviceName(std::string(deviceName).substr(0, 15))
+    , deviceManufacturer(std::string(deviceManufacturer).substr(0,15))
+    , batteryLevel(batteryLevel) {}
 
 void BleKeyboard::begin(void)
 {
-  xTaskCreate(this->taskServer, "server", 20000, (void *)this, 5, NULL);
+  BLEDevice::init(deviceName);
+  BLEServer* pServer = BLEDevice::createServer();
+  pServer->setCallbacks(this);
+
+  hid = new BLEHIDDevice(pServer);
+  inputKeyboard = hid->inputReport(KEYBOARD_ID);  // <-- input REPORTID from report map
+  outputKeyboard = hid->outputReport(KEYBOARD_ID);
+  inputMediaKeys = hid->inputReport(MEDIA_KEYS_ID);
+
+  outputKeyboard->setCallbacks(this);
+
+  hid->manufacturer()->setValue(deviceManufacturer);
+
+  hid->pnp(0x02, 0xe502, 0xa111, 0x0210);
+  hid->hidInfo(0x00, 0x01);
+
+  BLESecurity* pSecurity = new BLESecurity();
+
+  pSecurity->setAuthenticationMode(ESP_LE_AUTH_BOND);
+
+  hid->reportMap((uint8_t*)_hidReportDescriptor, sizeof(_hidReportDescriptor));
+  hid->startServices();
+
+  onStarted(pServer);
+
+  advertising = pServer->getAdvertising();
+  advertising->setAppearance(HID_KEYBOARD);
+  advertising->addServiceUUID(hid->hidService()->getUUID());
+  advertising->setScanResponse(false);
+  advertising->start();
+  hid->setBatteryLevel(batteryLevel);
+
+  ESP_LOGD(LOG_TAG, "Advertising started!");
 }
 
 void BleKeyboard::end(void)
@@ -107,7 +142,7 @@ void BleKeyboard::end(void)
 }
 
 bool BleKeyboard::isConnected(void) {
-  return this->connectionStatus->connected;
+  return this->connected;
 }
 
 void BleKeyboard::setBatteryLevel(uint8_t level) {
@@ -121,45 +156,13 @@ void BleKeyboard::setName(std::string deviceName) {
   this->deviceName = deviceName;
 }
 
-void BleKeyboard::taskServer(void* pvParameter) {
-  BleKeyboard* bleKeyboardInstance = (BleKeyboard *) pvParameter; //static_cast<BleKeyboard *>(pvParameter);
-  BLEDevice::init(bleKeyboardInstance->deviceName);
-  BLEServer *pServer = BLEDevice::createServer();
-  pServer->setCallbacks(bleKeyboardInstance->connectionStatus);
-
-  bleKeyboardInstance->hid = new BLEHIDDevice(pServer);
-  bleKeyboardInstance->inputKeyboard = bleKeyboardInstance->hid->inputReport(KEYBOARD_ID); // <-- input REPORTID from report map
-  bleKeyboardInstance->outputKeyboard = bleKeyboardInstance->hid->outputReport(KEYBOARD_ID);
-  bleKeyboardInstance->inputMediaKeys = bleKeyboardInstance->hid->inputReport(MEDIA_KEYS_ID);
-  bleKeyboardInstance->connectionStatus->inputKeyboard = bleKeyboardInstance->inputKeyboard;
-  bleKeyboardInstance->connectionStatus->outputKeyboard = bleKeyboardInstance->outputKeyboard;
-  bleKeyboardInstance->connectionStatus->inputMediaKeys = bleKeyboardInstance->inputMediaKeys;
-
-  bleKeyboardInstance->outputKeyboard->setCallbacks(new KeyboardOutputCallbacks());
-
-  bleKeyboardInstance->hid->manufacturer()->setValue(bleKeyboardInstance->deviceManufacturer);
-
-  bleKeyboardInstance->hid->pnp(0x02, 0xe502, 0xa111, 0x0210);
-  bleKeyboardInstance->hid->hidInfo(0x00,0x01);
-
-  BLESecurity *pSecurity = new BLESecurity();
-
-  pSecurity->setAuthenticationMode(ESP_LE_AUTH_BOND);
-
-  bleKeyboardInstance->hid->reportMap((uint8_t*)_hidReportDescriptor, sizeof(_hidReportDescriptor));
-  bleKeyboardInstance->hid->startServices();
-
-  bleKeyboardInstance->onStarted(pServer);
-
-  bleKeyboardInstance->connectionStatus->pAdvertising = pServer->getAdvertising();
-  bleKeyboardInstance->connectionStatus->pAdvertising->setAppearance(HID_KEYBOARD);
-  bleKeyboardInstance->connectionStatus->pAdvertising->addServiceUUID(bleKeyboardInstance->hid->hidService()->getUUID());
-  bleKeyboardInstance->connectionStatus->pAdvertising->setScanResponse(false);
-  bleKeyboardInstance->connectionStatus->pAdvertising->start();
-  bleKeyboardInstance->hid->setBatteryLevel(bleKeyboardInstance->batteryLevel);
-
-  ESP_LOGD(LOG_TAG, "Advertising started!");
-  vTaskDelay(portMAX_DELAY); //delay(portMAX_DELAY);
+/**
+ * @brief Sets the waiting time (in milliseconds) between multiple keystrokes in NimBLE mode.
+ * 
+ * @param ms Time in milliseconds
+ */
+void BleKeyboard::setDelay(uint32_t ms) {
+  this->_delay_ms = ms;
 }
 
 void BleKeyboard::sendReport(KeyReport* keys)
@@ -168,7 +171,11 @@ void BleKeyboard::sendReport(KeyReport* keys)
   {
     this->inputKeyboard->setValue((uint8_t*)keys, sizeof(KeyReport));
     this->inputKeyboard->notify();
-  }
+#if defined(USE_NIMBLE)        
+    // vTaskDelay(delayTicks);
+    this->delay_ms(_delay_ms);
+#endif // USE_NIMBLE
+  }	
 }
 
 void BleKeyboard::sendReport(MediaKeyReport* keys)
@@ -177,7 +184,11 @@ void BleKeyboard::sendReport(MediaKeyReport* keys)
   {
     this->inputMediaKeys->setValue((uint8_t*)keys, sizeof(MediaKeyReport));
     this->inputMediaKeys->notify();
-  }
+#if defined(USE_NIMBLE)        
+    //vTaskDelay(delayTicks);
+    this->delay_ms(_delay_ms);
+#endif // USE_NIMBLE
+  }	
 }
 
 extern
@@ -465,4 +476,32 @@ size_t BleKeyboard::write(const uint8_t *buffer, size_t size) {
 		buffer++;
 	}
 	return n;
+}
+
+void BleKeyboard::onConnect(BLEServer* pServer) {
+  this->connected = true;
+}
+
+void BleKeyboard::onDisconnect(BLEServer* pServer) {
+  this->connected = false;
+#if !defined(USE_NIMBLE)
+  advertising->start();
+#endif  // !USE_NIMBLE
+}
+
+void BleKeyboard::onWrite(BLECharacteristic* me) {
+  uint8_t* value = (uint8_t*)(me->getValue().c_str());
+  (void)value;
+  ESP_LOGI(LOG_TAG, "special keys: %d", *value);
+}
+
+void BleKeyboard::delay_ms(uint64_t ms) {
+  uint64_t m = esp_timer_get_time();
+  if(ms){
+    uint64_t e = (m + (ms * 1000));
+    if(m > e){ //overflow
+        while(esp_timer_get_time() > e) { }
+    }
+    while(esp_timer_get_time() < e) {}
+  }
 }
