@@ -145,7 +145,7 @@ PlatformIO: Change your `platformio.ini` to the following settings
 lib_deps = 
   NimBLE-Arduino
 
-build-flags = 
+build_flags = 
   -D USE_NIMBLE
 ```
 
