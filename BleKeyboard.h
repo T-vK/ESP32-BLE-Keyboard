@@ -120,6 +120,10 @@ private:
   uint32_t           _delay_ms = 7;
   void delay_ms(uint64_t ms);
 
+  uint16_t vid       = 0x05ac;
+  uint16_t pid       = 0x820a;
+  uint16_t version   = 0x0210;
+
 public:
   BleKeyboard(std::string deviceName = "ESP32 Keyboard", std::string deviceManufacturer = "Espressif", uint8_t batteryLevel = 100);
   void begin(void);
@@ -138,6 +142,10 @@ public:
   void setBatteryLevel(uint8_t level);
   void setName(std::string deviceName);  
   void setDelay(uint32_t ms);
+
+  void set_vendor_id(uint16_t vid);
+  void set_product_id(uint16_t pid);
+  void set_version(uint16_t version);
 protected:
   virtual void onStarted(BLEServer *pServer) { };
   virtual void onConnect(BLEServer* pServer) override;

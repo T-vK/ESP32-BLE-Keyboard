@@ -115,7 +115,7 @@ void BleKeyboard::begin(void)
 
   hid->manufacturer()->setValue(deviceManufacturer);
 
-  hid->pnp(0x02, 0xe502, 0xa111, 0x0210);
+  hid->pnp(0x02, vid, pid, version);
   hid->hidInfo(0x00, 0x01);
 
 
@@ -171,6 +171,18 @@ void BleKeyboard::setName(std::string deviceName) {
  */
 void BleKeyboard::setDelay(uint32_t ms) {
   this->_delay_ms = ms;
+}
+
+void BleKeyboard::set_vendor_id(uint16_t vid) { 
+	this->vid = vid; 
+}
+
+void BleKeyboard::set_product_id(uint16_t pid) { 
+	this->pid = pid; 
+}
+
+void BleKeyboard::set_version(uint16_t version) { 
+	this->version = version; 
 }
 
 void BleKeyboard::sendReport(KeyReport* keys)
