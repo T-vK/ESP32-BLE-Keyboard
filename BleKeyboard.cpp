@@ -472,6 +472,7 @@ void BleKeyboard::releaseAll(void)
 size_t BleKeyboard::write(uint8_t c)
 {
 	uint8_t p = press(c);  // Keydown
+	delay_ms(_delay_ms);   // Wait to make sure this registers for long writes with many keystrokes
 	release(c);            // Keyup
 	return p;              // just return the result of press() since release() almost always returns 1
 }
