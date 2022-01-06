@@ -61,7 +61,7 @@ void loop() {
     
    //
    // Below is an example of pressing multiple keyboard modifiers 
-   // which by default is commented out - for obvious reasons. 
+   // which by default is commented out. 
    // 
    /* Serial.println("Sending Ctrl+Alt+Delete...");
     bleKeyboard.press(KEY_LEFT_CTRL);
