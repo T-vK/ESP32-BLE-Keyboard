@@ -140,7 +140,10 @@ Flash: [====      ]  44.2% (used 579158 bytes from 1310720 bytes)
 ## How to activate NimBLE mode?
 
 ### ArduinoIDE: 
-Edit BleKeyboard.h and remove and uncomment the first line `#define USE_NIMBLE`
+Uncomment the first line in BleKeyboard.h
+```C++
+#define USE_NIMBLE
+```
 
 ### PlatformIO:
 Change your `platformio.ini` to the following settings
