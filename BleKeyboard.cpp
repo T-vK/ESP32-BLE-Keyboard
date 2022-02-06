@@ -1,3 +1,5 @@
+#include "BleKeyboard.h"
+
 #if defined(USE_NIMBLE)
 #include <NimBLEDevice.h>
 #include <NimBLEServer.h>
@@ -14,7 +16,6 @@
 #include <driver/adc.h>
 #include "sdkconfig.h"
 
-#include "BleKeyboard.h"
 
 #if defined(CONFIG_ARDUHAL_ESP_LOG)
   #include "esp32-hal-log.h"

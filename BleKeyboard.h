@@ -1,3 +1,6 @@
+// uncomment the following line to use NimBLE library
+//#define USE_NIMBLE
+
 #ifndef ESP32_BLE_KEYBOARD_H
 #define ESP32_BLE_KEYBOARD_H
 #include "sdkconfig.h"

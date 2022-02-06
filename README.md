@@ -137,15 +137,13 @@ Flash: [====      ]  44.2% (used 579158 bytes from 1310720 bytes)
 | `ESP.getFreeHeap()`   | 143.572 | 260.764 | **+ 117.192** |
 | `ESP.getSketchSize()` | 994.224 | 579.264 | **- 414.960** |
 
-### How to activate NimBLE mode?
+## How to activate NimBLE mode?
 
-ArduinoIDE: Before including the library, insert the line `#define USE_NIMBLE`
-```C++
-#define USE_NIMBLE
-#include <BleKeyboard.h>
-```
+### ArduinoIDE: 
+Edit BleKeyboard.h and remove and uncomment the first line `#define USE_NIMBLE`
 
-PlatformIO: Change your `platformio.ini` to the following settings
+### PlatformIO:
+Change your `platformio.ini` to the following settings
 ```ini
 lib_deps = 
   NimBLE-Arduino
