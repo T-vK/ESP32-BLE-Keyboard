@@ -142,6 +142,7 @@ private:
   std::string        deviceManufacturer;
   uint8_t            batteryLevel;
   bool               connected = false;
+  bool               reconnect = true;
   uint32_t           _delay_ms = 7;
   void delay_ms(uint64_t ms);
 
@@ -167,6 +168,7 @@ public:
   void setBatteryLevel(uint8_t level);
   void setName(std::string deviceName);  
   void setDelay(uint32_t ms);
+  void setReconnect(bool reconnect);
 
   void set_vendor_id(uint16_t vid);
   void set_product_id(uint16_t pid);

@@ -148,6 +148,7 @@ void BleKeyboard::begin(void)
 
 void BleKeyboard::end(void)
 {
+    BLEDevice::deinit(true);
 }
 
 bool BleKeyboard::isConnected(void) {
@@ -172,6 +173,10 @@ void BleKeyboard::setName(std::string deviceName) {
  */
 void BleKeyboard::setDelay(uint32_t ms) {
   this->_delay_ms = ms;
+}
+
+void BleKeyboard::setReconnect(bool reconnect) {
+    this->reconnect = reconnect;
 }
 
 void BleKeyboard::set_vendor_id(uint16_t vid) { 
@@ -523,9 +528,15 @@ void BleKeyboard::onDisconnect(BLEServer* pServer) {
   desc = (BLE2902*)this->inputMediaKeys->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
   desc->setNotifications(false);
 
-  advertising->start();
+  if (this->reconnect) {
+    advertising->start();
+  }
 
 #endif // !USE_NIMBLE
+
+  if (!this->reconnect) {
+    this->end();
+  }
 }
 
 void BleKeyboard::onWrite(BLECharacteristic* me) {
