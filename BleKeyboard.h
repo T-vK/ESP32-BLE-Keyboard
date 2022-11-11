@@ -126,7 +126,7 @@ typedef struct
   uint8_t modifiers;
   uint8_t reserved;
   uint8_t keys[6];
-} KeyReport;
+} BLEKeyReport;
 
 class BleKeyboard : public Print, public BLEServerCallbacks, public BLECharacteristicCallbacks
 {
@@ -136,7 +136,7 @@ private:
   BLECharacteristic* outputKeyboard;
   BLECharacteristic* inputMediaKeys;
   BLEAdvertising*    advertising;
-  KeyReport          _keyReport;
+  BLEKeyReport          _keyReport;
   MediaKeyReport     _mediaKeyReport;
   std::string        deviceName;
   std::string        deviceManufacturer;
@@ -153,7 +153,7 @@ public:
   BleKeyboard(std::string deviceName = "ESP32 Keyboard", std::string deviceManufacturer = "Espressif", uint8_t batteryLevel = 100);
   void begin(void);
   void end(void);
-  void sendReport(KeyReport* keys);
+  void sendReport(BLEKeyReport* keys);
   void sendReport(MediaKeyReport* keys);
   size_t press(uint8_t k);
   size_t press(const MediaKeyReport k);
