@@ -186,11 +186,11 @@ void BleKeyboard::set_version(uint16_t version) {
 	this->version = version; 
 }
 
-void BleKeyboard::sendReport(KeyReport* keys)
+void BleKeyboard::sendReport(BleKeyReport* keys)
 {
   if (this->isConnected())
   {
-    this->inputKeyboard->setValue((uint8_t*)keys, sizeof(KeyReport));
+    this->inputKeyboard->setValue((uint8_t*)keys, sizeof(BleKeyReport));
     this->inputKeyboard->notify();
 #if defined(USE_NIMBLE)        
     // vTaskDelay(delayTicks);
@@ -199,11 +199,11 @@ void BleKeyboard::sendReport(KeyReport* keys)
   }	
 }
 
-void BleKeyboard::sendReport(MediaKeyReport* keys)
+void BleKeyboard::sendReport(BleMediaKeyReport* keys)
 {
   if (this->isConnected())
   {
-    this->inputMediaKeys->setValue((uint8_t*)keys, sizeof(MediaKeyReport));
+    this->inputMediaKeys->setValue((uint8_t*)keys, sizeof(BleMediaKeyReport));
     this->inputMediaKeys->notify();
 #if defined(USE_NIMBLE)        
     //vTaskDelay(delayTicks);
@@ -397,7 +397,7 @@ size_t BleKeyboard::press(uint8_t k)
 	return 1;
 }
 
-size_t BleKeyboard::press(const MediaKeyReport k)
+size_t BleKeyboard::press(const BleMediaKeyReport k)
 {
     uint16_t k_16 = k[1] | (k[0] << 8);
     uint16_t mediaKeyReport_16 = _mediaKeyReport[1] | (_mediaKeyReport[0] << 8);
@@ -444,7 +444,7 @@ size_t BleKeyboard::release(uint8_t k)
 	return 1;
 }
 
-size_t BleKeyboard::release(const MediaKeyReport k)
+size_t BleKeyboard::release(const BleMediaKeyReport k)
 {
     uint16_t k_16 = k[1] | (k[0] << 8);
     uint16_t mediaKeyReport_16 = _mediaKeyReport[1] | (_mediaKeyReport[0] << 8);
@@ -477,7 +477,7 @@ size_t BleKeyboard::write(uint8_t c)
 	return p;              // just return the result of press() since release() almost always returns 1
 }
 
-size_t BleKeyboard::write(const MediaKeyReport c)
+size_t BleKeyboard::write(const BleMediaKeyReport c)
 {
 	uint16_t p = press(c);  // Keydown
 	release(c);            // Keyup
