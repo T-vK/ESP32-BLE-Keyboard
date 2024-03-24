@@ -468,6 +468,7 @@ void BleKeyboard::releaseAll(void)
     _mediaKeyReport[0] = 0;
     _mediaKeyReport[1] = 0;
 	sendReport(&_keyReport);
+	sendReport(&_mediaKeyReport);
 }
 
 size_t BleKeyboard::write(uint8_t c)
