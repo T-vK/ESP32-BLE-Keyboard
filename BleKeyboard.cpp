@@ -186,11 +186,11 @@ void BleKeyboard::set_version(uint16_t version) {
 	this->version = version; 
 }
 
-void BleKeyboard::sendReport(KeyReport* keys)
+void BleKeyboard::sendReport(BLEKeyReport* keys)
 {
   if (this->isConnected())
   {
-    this->inputKeyboard->setValue((uint8_t*)keys, sizeof(KeyReport));
+    this->inputKeyboard->setValue((uint8_t*)keys, sizeof(BLEKeyReport));
     this->inputKeyboard->notify();
 #if defined(USE_NIMBLE)        
     // vTaskDelay(delayTicks);
