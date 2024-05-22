@@ -16,15 +16,13 @@
 #include <driver/adc.h>
 #include "sdkconfig.h"
 
-
 #if defined(CONFIG_ARDUHAL_ESP_LOG)
-  #include "esp32-hal-log.h"
-  #define LOG_TAG ""
+#include "esp32-hal-log.h"
+#define LOG_TAG ""
 #else
-  #include "esp_log.h"
-  static const char* LOG_TAG = "BLEDevice";
+#include "esp_log.h"
+static const char* LOG_TAG = "BLEDevice";
 #endif
-
 
 // Report IDs:
 #define KEYBOARD_ID 0x01
@@ -95,10 +93,10 @@ static const uint8_t _hidReportDescriptor[] = {
   END_COLLECTION(0)                  // END_COLLECTION
 };
 
-BleKeyboard::BleKeyboard(std::string deviceName, std::string deviceManufacturer, uint8_t batteryLevel) 
+BleKeyboard::BleKeyboard(String deviceName, String deviceManufacturer, uint8_t batteryLevel) 
     : hid(0)
-    , deviceName(std::string(deviceName).substr(0, 15))
-    , deviceManufacturer(std::string(deviceManufacturer).substr(0,15))
+    , deviceName(deviceName)
+    , deviceManufacturer(deviceManufacturer)
     , batteryLevel(batteryLevel) {}
 
 void BleKeyboard::begin(void)
@@ -119,16 +117,11 @@ void BleKeyboard::begin(void)
   hid->pnp(0x02, vid, pid, version);
   hid->hidInfo(0x00, 0x01);
 
-
 #if defined(USE_NIMBLE)
-
   BLEDevice::setSecurityAuth(true, true, true);
-
 #else
-
   BLESecurity* pSecurity = new BLESecurity();
   pSecurity->setAuthenticationMode(ESP_LE_AUTH_REQ_SC_MITM_BOND);
-
 #endif // USE_NIMBLE
 
   hid->reportMap((uint8_t*)_hidReportDescriptor, sizeof(_hidReportDescriptor));
@@ -161,7 +154,7 @@ void BleKeyboard::setBatteryLevel(uint8_t level) {
 }
 
 //must be called before begin in order to set the name
-void BleKeyboard::setName(std::string deviceName) {
+void BleKeyboard::setName(String deviceName) {
   this->deviceName = deviceName;
 }
 
@@ -468,7 +461,6 @@ void BleKeyboard::releaseAll(void)
     _mediaKeyReport[0] = 0;
     _mediaKeyReport[1] = 0;
 	sendReport(&_keyReport);
-	sendReport(&_mediaKeyReport);
 }
 
 size_t BleKeyboard::write(uint8_t c)
