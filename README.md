@@ -1,5 +1,9 @@
 # ESP32 BLE Keyboard library
 
+![Build](https://github.com/tamegai-m/ESP32-BLE-Keyboard/actions/workflows/build.yml/badge.svg)
+
+Bluetooth HID Keyboard library for ESP32...
+
 This library allows you to make the ESP32 act as a Bluetooth Keyboard and control what it does.  
 You might also be interested in:
 - [ESP32-BLE-Mouse](https://github.com/T-vK/ESP32-BLE-Mouse)

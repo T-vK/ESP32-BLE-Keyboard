@@ -1,0 +1,23 @@
+name: ESP32 BLE Keyboard CI Build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python and install PlatformIO
+        run: |
+          python3 -m pip install --upgrade platformio
+
+      - name: Build with PlatformIO
+        run: |
+          cd test/ci_build
+          platformio run
