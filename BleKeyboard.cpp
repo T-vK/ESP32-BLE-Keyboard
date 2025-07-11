@@ -101,11 +101,20 @@ BleKeyboard::BleKeyboard(std::string deviceName, std::string deviceManufacturer,
     , deviceManufacturer(std::string(deviceManufacturer).substr(0,15))
     , batteryLevel(batteryLevel) {}
 
+void BleKeyboard::init(void)
+{
+  if(!initialised) {
+    BLEDevice::init(deviceName);
+    BLEServer* pServer = BLEDevice::createServer();
+    pServer->setCallbacks(this);
+    initialised = true;
+  }
+}
+
 void BleKeyboard::begin(void)
 {
-  BLEDevice::init(deviceName);
+  init();
   BLEServer* pServer = BLEDevice::createServer();
-  pServer->setCallbacks(this);
 
   hid = new BLEHIDDevice(pServer);
   inputKeyboard = hid->inputReport(KEYBOARD_ID);  // <-- input REPORTID from report map
