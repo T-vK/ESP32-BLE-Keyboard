@@ -1,17 +1,22 @@
 #include "BleKeyboard.h"
 
 #if defined(USE_NIMBLE)
+
 #include <NimBLEDevice.h>
 #include <NimBLEServer.h>
 #include <NimBLEUtils.h>
 #include <NimBLEHIDDevice.h>
-#else
+
+#else // USE_NIMBLE
+
 #include <BLEDevice.h>
 #include <BLEUtils.h>
 #include <BLEServer.h>
 #include "BLE2902.h"
 #include "BLEHIDDevice.h"
+
 #endif // USE_NIMBLE
+
 #include "HIDTypes.h"
 #include <driver/adc.h>
 #include "sdkconfig.h"
@@ -95,7 +100,7 @@ static const uint8_t _hidReportDescriptor[] = {
   END_COLLECTION(0)                  // END_COLLECTION
 };
 
-BleKeyboard::BleKeyboard(std::string deviceName, std::string deviceManufacturer, uint8_t batteryLevel) 
+BleKeyboard::BleKeyboard(std::string deviceName, std::string deviceManufacturer, uint8_t batteryLevel)
     : hid(0)
     , deviceName(std::string(deviceName).substr(0, 15))
     , deviceManufacturer(std::string(deviceManufacturer).substr(0,15))
@@ -103,43 +108,80 @@ BleKeyboard::BleKeyboard(std::string deviceName, std::string deviceManufacturer,
 
 void BleKeyboard::begin(void)
 {
+
+#if defined(USE_NIMBLE)
   BLEDevice::init(deviceName);
+#else  // USE_NIMBLE
+  BLEDevice::init(String(deviceName.c_str()));
+#endif  // USE_NIMBLE
+
   BLEServer* pServer = BLEDevice::createServer();
   pServer->setCallbacks(this);
 
+#if defined(USE_NIMBLE)
+  // Set server auto-restart advertise on
+  pServer->advertiseOnDisconnect(true);
+#endif  // USE_NIMBLE
+
   hid = new BLEHIDDevice(pServer);
+
+#if defined(USE_NIMBLE)
+
+  inputKeyboard = hid->getInputReport(KEYBOARD_ID);  // <-- input REPORTID from report map
+  outputKeyboard = hid->getOutputReport(KEYBOARD_ID);
+  inputMediaKeys = hid->getInputReport(MEDIA_KEYS_ID);
+
+  outputKeyboard->setCallbacks(this);
+
+  hid->setManufacturer(deviceManufacturer);
+  hid->setPnp(0x02, vid, pid, version);
+  hid->setHidInfo(0x00, 0x01);
+
+  BLEDevice::setSecurityAuth(true, true, true);
+
+  hid->setReportMap((uint8_t*)_hidReportDescriptor, sizeof(_hidReportDescriptor));
+
+#else  // USE_NIMBLE
+
   inputKeyboard = hid->inputReport(KEYBOARD_ID);  // <-- input REPORTID from report map
   outputKeyboard = hid->outputReport(KEYBOARD_ID);
   inputMediaKeys = hid->inputReport(MEDIA_KEYS_ID);
 
   outputKeyboard->setCallbacks(this);
 
-  hid->manufacturer()->setValue(deviceManufacturer);
+  hid->manufacturer()->setValue(String(deviceManufacturer.c_str()));
 
   hid->pnp(0x02, vid, pid, version);
   hid->hidInfo(0x00, 0x01);
 
-
-#if defined(USE_NIMBLE)
-
-  BLEDevice::setSecurityAuth(true, true, true);
-
-#else
-
   BLESecurity* pSecurity = new BLESecurity();
+  pSecurity->setPassKey(false);  // <--- It has to be set before the lines below as suggested by the setStaticPIN() definition comments
+  pSecurity->setCapability(ESP_IO_CAP_NONE);
   pSecurity->setAuthenticationMode(ESP_LE_AUTH_REQ_SC_MITM_BOND);
 
-#endif // USE_NIMBLE
-
   hid->reportMap((uint8_t*)_hidReportDescriptor, sizeof(_hidReportDescriptor));
-  hid->startServices();
 
+#endif  // USE_NIMBLE
+
+  hid->startServices();
   onStarted(pServer);
 
   advertising = pServer->getAdvertising();
   advertising->setAppearance(HID_KEYBOARD);
+
+#if defined(USE_NIMBLE)
+
+  advertising->setName(deviceName);
+  advertising->addServiceUUID(hid->getHidService()->getUUID());
+  advertising->enableScanResponse(false);
+
+#else // USE_NIMBLE
+
   advertising->addServiceUUID(hid->hidService()->getUUID());
   advertising->setScanResponse(false);
+
+#endif // USE_NIMBLE
+
   advertising->start();
   hid->setBatteryLevel(batteryLevel);
 
@@ -167,23 +209,23 @@ void BleKeyboard::setName(std::string deviceName) {
 
 /**
  * @brief Sets the waiting time (in milliseconds) between multiple keystrokes in NimBLE mode.
- * 
+ *
  * @param ms Time in milliseconds
  */
 void BleKeyboard::setDelay(uint32_t ms) {
   this->_delay_ms = ms;
 }
 
-void BleKeyboard::set_vendor_id(uint16_t vid) { 
-	this->vid = vid; 
+void BleKeyboard::set_vendor_id(uint16_t vid) {
+	this->vid = vid;
 }
 
-void BleKeyboard::set_product_id(uint16_t pid) { 
-	this->pid = pid; 
+void BleKeyboard::set_product_id(uint16_t pid) {
+	this->pid = pid;
 }
 
-void BleKeyboard::set_version(uint16_t version) { 
-	this->version = version; 
+void BleKeyboard::set_version(uint16_t version) {
+	this->version = version;
 }
 
 void BleKeyboard::sendReport(KeyReport* keys)
@@ -192,11 +234,11 @@ void BleKeyboard::sendReport(KeyReport* keys)
   {
     this->inputKeyboard->setValue((uint8_t*)keys, sizeof(KeyReport));
     this->inputKeyboard->notify();
-#if defined(USE_NIMBLE)        
+#if defined(USE_NIMBLE)
     // vTaskDelay(delayTicks);
     this->delay_ms(_delay_ms);
 #endif // USE_NIMBLE
-  }	
+  }
 }
 
 void BleKeyboard::sendReport(MediaKeyReport* keys)
@@ -205,11 +247,11 @@ void BleKeyboard::sendReport(MediaKeyReport* keys)
   {
     this->inputMediaKeys->setValue((uint8_t*)keys, sizeof(MediaKeyReport));
     this->inputMediaKeys->notify();
-#if defined(USE_NIMBLE)        
+#if defined(USE_NIMBLE)
     //vTaskDelay(delayTicks);
     this->delay_ms(_delay_ms);
 #endif // USE_NIMBLE
-  }	
+  }
 }
 
 extern
@@ -500,7 +542,16 @@ size_t BleKeyboard::write(const uint8_t *buffer, size_t size) {
 	return n;
 }
 
+#if defined(USE_NIMBLE)
+
+void BleKeyboard::onConnect(BLEServer* pServer, NimBLEConnInfo & connInfo) {
+
+#else // USE_NIMBLE
+
 void BleKeyboard::onConnect(BLEServer* pServer) {
+
+#endif  // USE_NIMBLE
+
   this->connected = true;
 
 #if !defined(USE_NIMBLE)
@@ -514,7 +565,16 @@ void BleKeyboard::onConnect(BLEServer* pServer) {
 
 }
 
+#if defined(USE_NIMBLE)
+
+void BleKeyboard::onDisconnect(BLEServer* pServer, NimBLEConnInfo & connInfo, int reason) {
+
+#else // USE_NIMBLE
+
 void BleKeyboard::onDisconnect(BLEServer* pServer) {
+
+#endif  // USE_NIMBLE
+
   this->connected = false;
 
 #if !defined(USE_NIMBLE)
@@ -529,7 +589,16 @@ void BleKeyboard::onDisconnect(BLEServer* pServer) {
 #endif // !USE_NIMBLE
 }
 
+#if defined(USE_NIMBLE)
+
+void BleKeyboard::onWrite(BLECharacteristic* me, NimBLEConnInfo & connInfo) {
+
+#else // USE_NIMBLE
+
 void BleKeyboard::onWrite(BLECharacteristic* me) {
+
+#endif  // USE_NIMBLE
+
   uint8_t* value = (uint8_t*)(me->getValue().c_str());
   (void)value;
   ESP_LOGI(LOG_TAG, "special keys: %d", *value);

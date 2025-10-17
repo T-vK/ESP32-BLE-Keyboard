@@ -1,5 +1,5 @@
-// uncomment the following line to use NimBLE library
-//#define USE_NIMBLE
+// replace #undef with #define in the following line to use NimBLE library
+#undef USE_NIMBLE
 
 #ifndef ESP32_BLE_KEYBOARD_H
 #define ESP32_BLE_KEYBOARD_H
@@ -8,6 +8,9 @@
 
 #if defined(USE_NIMBLE)
 
+#include "NimBLEConnInfo.h"
+#include "NimBLEDevice.h"
+#include "NimBLEServer.h"
 #include "NimBLECharacteristic.h"
 #include "NimBLEHIDDevice.h"
 
@@ -165,7 +168,7 @@ public:
   void releaseAll(void);
   bool isConnected(void);
   void setBatteryLevel(uint8_t level);
-  void setName(std::string deviceName);  
+  void setName(std::string deviceName);
   void setDelay(uint32_t ms);
 
   void set_vendor_id(uint16_t vid);
@@ -173,9 +176,20 @@ public:
   void set_version(uint16_t version);
 protected:
   virtual void onStarted(BLEServer *pServer) { };
+
+#if defined(USE_NIMBLE)
+
+  virtual void onConnect(BLEServer* pServer, NimBLEConnInfo & connInfo) override;
+  virtual void onDisconnect(BLEServer* pServer, NimBLEConnInfo & connInfo, int reason) override;
+  virtual void onWrite(BLECharacteristic* me, NimBLEConnInfo & connInfo) override;
+
+#else  // USE_NIMBLE
+
   virtual void onConnect(BLEServer* pServer) override;
   virtual void onDisconnect(BLEServer* pServer) override;
   virtual void onWrite(BLECharacteristic* me) override;
+
+#endif  // USE_NIMBLE
 
 };
 
