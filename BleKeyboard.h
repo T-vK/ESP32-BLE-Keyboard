@@ -1,5 +1,5 @@
 // uncomment the following line to use NimBLE library
-//#define USE_NIMBLE
+#define USE_NIMBLE
 
 #ifndef ESP32_BLE_KEYBOARD_H
 #define ESP32_BLE_KEYBOARD_H
@@ -10,6 +10,8 @@
 
 #include "NimBLECharacteristic.h"
 #include "NimBLEHIDDevice.h"
+#include "NimBLEAdvertising.h"
+#include "NimBLEServer.h"
 
 #define BLEDevice                  NimBLEDevice
 #define BLEServerCallbacks         NimBLEServerCallbacks
@@ -28,10 +30,10 @@
 
 #include "Print.h"
 
-#define BLE_KEYBOARD_VERSION "0.0.4"
+#define BLE_KEYBOARD_VERSION "0.0.6"
 #define BLE_KEYBOARD_VERSION_MAJOR 0
 #define BLE_KEYBOARD_VERSION_MINOR 0
-#define BLE_KEYBOARD_VERSION_REVISION 4
+#define BLE_KEYBOARD_VERSION_REVISION 6
 
 const uint8_t KEY_LEFT_CTRL = 0x80;
 const uint8_t KEY_LEFT_SHIFT = 0x81;
@@ -173,9 +175,9 @@ public:
   void set_version(uint16_t version);
 protected:
   virtual void onStarted(BLEServer *pServer) { };
-  virtual void onConnect(BLEServer* pServer) override;
-  virtual void onDisconnect(BLEServer* pServer) override;
-  virtual void onWrite(BLECharacteristic* me) override;
+  virtual void onConnect(BLEServer* pServer, NimBLEConnInfo & connInfo) override;
+  virtual void onDisconnect(BLEServer* pServer, NimBLEConnInfo & connInfo, int reason) override;
+  virtual void onWrite(BLECharacteristic* me, NimBLEConnInfo & connInfo) override;
 
 };
 
