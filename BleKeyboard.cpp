@@ -103,7 +103,11 @@ BleKeyboard::BleKeyboard(std::string deviceName, std::string deviceManufacturer,
 
 void BleKeyboard::begin(void)
 {
+#if ESP_ARDUINO_VERSION_MAJOR < 3
   BLEDevice::init(deviceName);
+#else
+  BLEDevice::init(String(deviceName.c_str(), deviceName.size()));
+#endif
   BLEServer* pServer = BLEDevice::createServer();
   pServer->setCallbacks(this);
 
@@ -114,7 +118,11 @@ void BleKeyboard::begin(void)
 
   outputKeyboard->setCallbacks(this);
 
+#if ESP_ARDUINO_VERSION_MAJOR < 3
   hid->manufacturer()->setValue(deviceManufacturer);
+#else
+  hid->manufacturer()->setValue(String(deviceManufacturer.c_str(), deviceManufacturer.size()));
+#endif
 
   hid->pnp(0x02, vid, pid, version);
   hid->hidInfo(0x00, 0x01);
