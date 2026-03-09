@@ -3,6 +3,9 @@
 
 #ifndef ESP32_BLE_KEYBOARD_H
 #define ESP32_BLE_KEYBOARD_H
+//#pragma message ("Supressing Bluethoot Warning: 'BT: forcing BR/EDR max sync conn eff to 1 (Bluedroid HFP requires SCO/eSCO)'")
+//#pragma warning( push )
+//#pragma warning (disable : 4068 ) /* disable unknown pragma warnings. especially the Bluthoot onces */
 #include "sdkconfig.h"
 #if defined(CONFIG_BT_ENABLED)
 
@@ -10,14 +13,25 @@
 
 #include "NimBLECharacteristic.h"
 #include "NimBLEHIDDevice.h"
+#include "NimBLEAdvertising.h"
+#include "NimBLEServer.h"
+#include "NimBLECharacteristic.h"
 
-#define BLEDevice                  NimBLEDevice
-#define BLEServerCallbacks         NimBLEServerCallbacks
-#define BLECharacteristicCallbacks NimBLECharacteristicCallbacks
-#define BLEHIDDevice               NimBLEHIDDevice
-#define BLECharacteristic          NimBLECharacteristic
-#define BLEAdvertising             NimBLEAdvertising
-#define BLEServer                  NimBLEServer
+#define BLEDevice                   NimBLEDevice
+#define BLEServerCallbacks          NimBLEServerCallbacks
+#define BLECharacteristicCallbacks  NimBLECharacteristicCallbacks
+#define BLEHIDDevice                NimBLEHIDDevice
+#define BLECharacteristic           NimBLECharacteristic
+#define BLEAdvertising              NimBLEAdvertising
+#define BLEServer                   NimBLEServer
+#define setScanResponse             setScanResponseData
+#define hidService                  getHidService
+#define inputReport                 getInputReport
+#define outputReport                getOutputReport
+//#define manufacturer()->setValue(    setManufacturer
+#define hidInfo                     setHidInfo
+#define pnp                         setPnp
+#define reportMap                   setReportMap
 
 #else
 
@@ -26,79 +40,79 @@
 
 #endif // USE_NIMBLE
 
-#include "Print.h"
+//#include "Print.h"
 
 #define BLE_KEYBOARD_VERSION "0.0.4"
 #define BLE_KEYBOARD_VERSION_MAJOR 0
 #define BLE_KEYBOARD_VERSION_MINOR 0
 #define BLE_KEYBOARD_VERSION_REVISION 4
 
-const uint8_t KEY_LEFT_CTRL = 0x80;
-const uint8_t KEY_LEFT_SHIFT = 0x81;
-const uint8_t KEY_LEFT_ALT = 0x82;
-const uint8_t KEY_LEFT_GUI = 0x83;
-const uint8_t KEY_RIGHT_CTRL = 0x84;
-const uint8_t KEY_RIGHT_SHIFT = 0x85;
-const uint8_t KEY_RIGHT_ALT = 0x86;
-const uint8_t KEY_RIGHT_GUI = 0x87;
+#define KEY_LEFT_CTRL (uint8_t) 0x80
+#define KEY_LEFT_SHIFT (uint8_t) 0x81
+#define KEY_LEFT_ALT (uint8_t) 0x82
+#define KEY_LEFT_GUI (uint8_t) 0x83
+#define KEY_RIGHT_CTRL (uint8_t) 0x84
+#define KEY_RIGHT_SHIFT (uint8_t) 0x85
+#define KEY_RIGHT_ALT (uint8_t) 0x86
+#define KEY_RIGHT_GUI (uint8_t) 0x87
 
-const uint8_t KEY_UP_ARROW = 0xDA;
-const uint8_t KEY_DOWN_ARROW = 0xD9;
-const uint8_t KEY_LEFT_ARROW = 0xD8;
-const uint8_t KEY_RIGHT_ARROW = 0xD7;
-const uint8_t KEY_BACKSPACE = 0xB2;
-const uint8_t KEY_TAB = 0xB3;
-const uint8_t KEY_RETURN = 0xB0;
-const uint8_t KEY_ESC = 0xB1;
-const uint8_t KEY_INSERT = 0xD1;
-const uint8_t KEY_PRTSC = 0xCE;
-const uint8_t KEY_DELETE = 0xD4;
-const uint8_t KEY_PAGE_UP = 0xD3;
-const uint8_t KEY_PAGE_DOWN = 0xD6;
-const uint8_t KEY_HOME = 0xD2;
-const uint8_t KEY_END = 0xD5;
-const uint8_t KEY_CAPS_LOCK = 0xC1;
-const uint8_t KEY_F1 = 0xC2;
-const uint8_t KEY_F2 = 0xC3;
-const uint8_t KEY_F3 = 0xC4;
-const uint8_t KEY_F4 = 0xC5;
-const uint8_t KEY_F5 = 0xC6;
-const uint8_t KEY_F6 = 0xC7;
-const uint8_t KEY_F7 = 0xC8;
-const uint8_t KEY_F8 = 0xC9;
-const uint8_t KEY_F9 = 0xCA;
-const uint8_t KEY_F10 = 0xCB;
-const uint8_t KEY_F11 = 0xCC;
-const uint8_t KEY_F12 = 0xCD;
-const uint8_t KEY_F13 = 0xF0;
-const uint8_t KEY_F14 = 0xF1;
-const uint8_t KEY_F15 = 0xF2;
-const uint8_t KEY_F16 = 0xF3;
-const uint8_t KEY_F17 = 0xF4;
-const uint8_t KEY_F18 = 0xF5;
-const uint8_t KEY_F19 = 0xF6;
-const uint8_t KEY_F20 = 0xF7;
-const uint8_t KEY_F21 = 0xF8;
-const uint8_t KEY_F22 = 0xF9;
-const uint8_t KEY_F23 = 0xFA;
-const uint8_t KEY_F24 = 0xFB;
+#define KEY_UP_ARROW (uint8_t) 0xDA
+#define KEY_DOWN_ARROW (uint8_t) 0xD9
+#define KEY_LEFT_ARROW (uint8_t) 0xD8
+#define KEY_RIGHT_ARROW (uint8_t) 0xD7
+#define KEY_BACKSPACE (uint8_t) 0xB2
+#define KEY_TAB (uint8_t) 0xB3
+#define KEY_RETURN (uint8_t) 0xB0
+#define KEY_ESC (uint8_t) 0xB1
+#define KEY_INSERT (uint8_t) 0xD1
+#define KEY_PRTSC (uint8_t) 0xCE
+#define KEY_DELETE (uint8_t) 0xD4
+#define KEY_PAGE_UP (uint8_t) 0xD3
+#define KEY_PAGE_DOWN (uint8_t) 0xD6
+#define KEY_HOME (uint8_t) 0xD2
+#define KEY_END (uint8_t) 0xD5
+#define KEY_CAPS_LOCK (uint8_t) 0xC1
+#define KEY_F1 (uint8_t) 0xC2
+#define KEY_F2 (uint8_t) 0xC3
+#define KEY_F3 (uint8_t) 0xC4
+#define KEY_F4 (uint8_t) 0xC5
+#define KEY_F5 (uint8_t) 0xC6
+#define KEY_F6 (uint8_t) 0xC7
+#define KEY_F7 (uint8_t) 0xC8
+#define KEY_F8 (uint8_t) 0xC9
+#define KEY_F9 (uint8_t) 0xCA
+#define KEY_F10 (uint8_t) 0xCB
+#define KEY_F11 (uint8_t) 0xCC
+#define KEY_F12 (uint8_t) 0xCD
+#define KEY_F13 (uint8_t) 0xF0
+#define KEY_F14 (uint8_t) 0xF1
+#define KEY_F15 (uint8_t) 0xF2
+#define KEY_F16 (uint8_t) 0xF3
+#define KEY_F17 (uint8_t) 0xF4
+#define KEY_F18 (uint8_t) 0xF5
+#define KEY_F19 (uint8_t) 0xF6
+#define KEY_F20 (uint8_t) 0xF7
+#define KEY_F21 (uint8_t) 0xF8
+#define KEY_F22 (uint8_t) 0xF9
+#define KEY_F23 (uint8_t) 0xFA
+#define KEY_F24 (uint8_t) 0xFB
 
-const uint8_t KEY_NUM_0 = 0xEA;
-const uint8_t KEY_NUM_1 = 0xE1;
-const uint8_t KEY_NUM_2 = 0xE2;
-const uint8_t KEY_NUM_3 = 0xE3;
-const uint8_t KEY_NUM_4 = 0xE4;
-const uint8_t KEY_NUM_5 = 0xE5;
-const uint8_t KEY_NUM_6 = 0xE6;
-const uint8_t KEY_NUM_7 = 0xE7;
-const uint8_t KEY_NUM_8 = 0xE8;
-const uint8_t KEY_NUM_9 = 0xE9;
-const uint8_t KEY_NUM_SLASH = 0xDC;
-const uint8_t KEY_NUM_ASTERISK = 0xDD;
-const uint8_t KEY_NUM_MINUS = 0xDE;
-const uint8_t KEY_NUM_PLUS = 0xDF;
-const uint8_t KEY_NUM_ENTER = 0xE0;
-const uint8_t KEY_NUM_PERIOD = 0xEB;
+#define KEY_NUM_0 (uint8_t) 0xEA
+#define KEY_NUM_1 (uint8_t) 0xE1
+#define KEY_NUM_2 (uint8_t) 0xE2
+#define KEY_NUM_3 (uint8_t) 0xE3
+#define KEY_NUM_4 (uint8_t) 0xE4
+#define KEY_NUM_5 (uint8_t) 0xE5
+#define KEY_NUM_6 (uint8_t) 0xE6
+#define KEY_NUM_7 (uint8_t) 0xE7
+#define KEY_NUM_8 (uint8_t) 0xE8
+#define KEY_NUM_9 (uint8_t) 0xE9
+#define KEY_NUM_SLASH (uint8_t) 0xDC
+#define KEY_NUM_ASTERISK (uint8_t) 0xDD
+#define KEY_NUM_MINUS (uint8_t) 0xDE
+#define KEY_NUM_PLUS (uint8_t) 0xDF
+#define KEY_NUM_ENTER (uint8_t) 0xE0
+#define KEY_NUM_PERIOD (uint8_t) 0xEB
 
 typedef uint8_t MediaKeyReport[2];
 
@@ -138,8 +152,13 @@ private:
   BLEAdvertising*    advertising;
   KeyReport          _keyReport;
   MediaKeyReport     _mediaKeyReport;
-  std::string        deviceName;
-  std::string        deviceManufacturer;
+  #if defined(USE_NIMBLE)
+  std::string              deviceName;
+  std::string              deviceManufacturer;
+  #else
+  String              deviceName;
+  String              deviceManufacturer;
+  #endif
   uint8_t            batteryLevel;
   bool               connected = false;
   uint32_t           _delay_ms = 7;
@@ -150,7 +169,11 @@ private:
   uint16_t version   = 0x0210;
 
 public:
+#if defined(USE_NIMBLE)
   BleKeyboard(std::string deviceName = "ESP32 Keyboard", std::string deviceManufacturer = "Espressif", uint8_t batteryLevel = 100);
+#else
+  BleKeyboard(String deviceName = "ESP32 Keyboard", String deviceManufacturer = "Espressif", uint8_t batteryLevel = 100);
+#endif
   void begin(void);
   void end(void);
   void sendReport(KeyReport* keys);
@@ -165,7 +188,11 @@ public:
   void releaseAll(void);
   bool isConnected(void);
   void setBatteryLevel(uint8_t level);
+#if defined(USE_NIMBLE)
   void setName(std::string deviceName);  
+#else
+  void setName(String deviceName);  
+#endif
   void setDelay(uint32_t ms);
 
   void set_vendor_id(uint16_t vid);
@@ -173,11 +200,18 @@ public:
   void set_version(uint16_t version);
 protected:
   virtual void onStarted(BLEServer *pServer) { };
+  #ifndef USE_NIMBLE
   virtual void onConnect(BLEServer* pServer) override;
   virtual void onDisconnect(BLEServer* pServer) override;
   virtual void onWrite(BLECharacteristic* me) override;
-
+  #else 
+  //Nimble got some more stuff
+  virtual void onConnect(BLEServer* pServer, NimBLEConnInfo& connInfo) override;
+  virtual void onDisconnect(BLEServer* pServer, NimBLEConnInfo& connInfo, int reason) override;
+  virtual void onWrite(BLECharacteristic* me, NimBLEConnInfo& connInfo) override;
+  #endif
 };
 
 #endif // CONFIG_BT_ENABLED
+//#pragma warning( pop )
 #endif // ESP32_BLE_KEYBOARD_H

@@ -1,3 +1,5 @@
+//#pragma warning (push)
+//#pragma warning (disable : 4068 ) /* disable unknown pragma warnings. especially the Bluthoot onces */
 #include "BleKeyboard.h"
 
 #if defined(USE_NIMBLE)
@@ -95,29 +97,39 @@ static const uint8_t _hidReportDescriptor[] = {
   END_COLLECTION(0)                  // END_COLLECTION
 };
 
-BleKeyboard::BleKeyboard(std::string deviceName, std::string deviceManufacturer, uint8_t batteryLevel) 
-    : hid(0)
-    , deviceName(std::string(deviceName).substr(0, 15))
-    , deviceManufacturer(std::string(deviceManufacturer).substr(0,15))
+#if defined(USE_NIMBLE)
+  	BleKeyboard::BleKeyboard(std::string deviceName, std::string deviceManufacturer, uint8_t batteryLevel)
+      : hid(0)
+    , deviceName(deviceName.substr(0, 15))
+    , deviceManufacturer(deviceManufacturer.substr(0,15))
     , batteryLevel(batteryLevel) {}
+#else
+  	BleKeyboard::BleKeyboard(String deviceName, String deviceManufacturer, uint8_t batteryLevel) 
+    : hid(0)
+    , deviceName(deviceName.substring(0, 15))
+    , deviceManufacturer(deviceManufacturer.substring(0,15))
+    , batteryLevel(batteryLevel) {}
+#endif
 
 void BleKeyboard::begin(void)
 {
-  BLEDevice::init(deviceName);
-  BLEServer* pServer = BLEDevice::createServer();
-  pServer->setCallbacks(this);
+  	BLEDevice::init(deviceName);
+  	BLEServer* pServer = BLEDevice::createServer();
+  	pServer->setCallbacks(this);
+	hid = new BLEHIDDevice(pServer);
+	//hid->startServices();
+	inputKeyboard = hid->inputReport(KEYBOARD_ID);  // <-- input REPORTID from report map
+  	outputKeyboard = hid->outputReport(KEYBOARD_ID);
+  	inputMediaKeys = hid->inputReport(MEDIA_KEYS_ID);
 
-  hid = new BLEHIDDevice(pServer);
-  inputKeyboard = hid->inputReport(KEYBOARD_ID);  // <-- input REPORTID from report map
-  outputKeyboard = hid->outputReport(KEYBOARD_ID);
-  inputMediaKeys = hid->inputReport(MEDIA_KEYS_ID);
-
-  outputKeyboard->setCallbacks(this);
-
-  hid->manufacturer()->setValue(deviceManufacturer);
-
-  hid->pnp(0x02, vid, pid, version);
-  hid->hidInfo(0x00, 0x01);
+  	outputKeyboard->setCallbacks(this);
+#if defined(USE_NIMBLE)
+	hid->setManufacturer(deviceManufacturer);
+#else
+  	hid->manufacturer()->setValue(deviceManufacturer);
+#endif
+  	hid->pnp(0x02, vid, pid, version);
+  	hid->hidInfo(0x00, 0x01);
 
 
 #if defined(USE_NIMBLE)
@@ -131,47 +143,58 @@ void BleKeyboard::begin(void)
 
 #endif // USE_NIMBLE
 
-  hid->reportMap((uint8_t*)_hidReportDescriptor, sizeof(_hidReportDescriptor));
-  hid->startServices();
+	hid->reportMap((uint8_t*)_hidReportDescriptor, sizeof(_hidReportDescriptor));
+	hid->startServices();
 
-  onStarted(pServer);
+	onStarted(pServer);
+	advertising = pServer->getAdvertising();
+	advertising->setAppearance(HID_KEYBOARD);
+	advertising->addServiceUUID(hid->hidService()->getUUID());
+	advertising->setName(deviceName);
+#ifndef USE_NIMBLE
+	advertising->setScanResponse(false);
+#endif
+	advertising->start();
+	hid->setBatteryLevel(batteryLevel);
 
-  advertising = pServer->getAdvertising();
-  advertising->setAppearance(HID_KEYBOARD);
-  advertising->addServiceUUID(hid->hidService()->getUUID());
-  advertising->setScanResponse(false);
-  advertising->start();
-  hid->setBatteryLevel(batteryLevel);
-
-  ESP_LOGD(LOG_TAG, "Advertising started!");
+	ESP_LOGD(LOG_TAG, "Advertising started!");
 }
 
 void BleKeyboard::end(void)
 {
+
 }
 
 bool BleKeyboard::isConnected(void) {
-  return this->connected;
+	return this->connected;
 }
 
 void BleKeyboard::setBatteryLevel(uint8_t level) {
-  this->batteryLevel = level;
-  if (hid != 0)
-    this->hid->setBatteryLevel(this->batteryLevel);
+	this->batteryLevel = level;
+	if (hid != 0)
+		this->hid->setBatteryLevel(this->batteryLevel);
 }
 
 //must be called before begin in order to set the name
-void BleKeyboard::setName(std::string deviceName) {
-  this->deviceName = deviceName;
+#if defined(USE_NIMBLE)
+void BleKeyboard::setName(std::string deviceName)
+{	
+	this->deviceName = deviceName.substr(0, 15);
 }
-
+#else
+void BleKeyboard::setName(String deviceName)
+{
+	this->deviceName = deviceName.substring(0, 15);
+}
+#endif
+//substr
 /**
  * @brief Sets the waiting time (in milliseconds) between multiple keystrokes in NimBLE mode.
  * 
  * @param ms Time in milliseconds
  */
 void BleKeyboard::setDelay(uint32_t ms) {
-  this->_delay_ms = ms;
+	this->_delay_ms = ms;
 }
 
 void BleKeyboard::set_vendor_id(uint16_t vid) { 
@@ -188,28 +211,28 @@ void BleKeyboard::set_version(uint16_t version) {
 
 void BleKeyboard::sendReport(KeyReport* keys)
 {
-  if (this->isConnected())
-  {
-    this->inputKeyboard->setValue((uint8_t*)keys, sizeof(KeyReport));
-    this->inputKeyboard->notify();
-#if defined(USE_NIMBLE)        
-    // vTaskDelay(delayTicks);
-    this->delay_ms(_delay_ms);
+	if (this->isConnected())
+	{
+		this->inputKeyboard->setValue((uint8_t*)keys, sizeof(KeyReport));
+		this->inputKeyboard->notify();
+#if defined(USE_NIMBLE)				
+		// vTaskDelay(delayTicks);
+		this->delay_ms(_delay_ms);
 #endif // USE_NIMBLE
-  }	
+	}	
 }
 
 void BleKeyboard::sendReport(MediaKeyReport* keys)
 {
-  if (this->isConnected())
-  {
-    this->inputMediaKeys->setValue((uint8_t*)keys, sizeof(MediaKeyReport));
-    this->inputMediaKeys->notify();
-#if defined(USE_NIMBLE)        
-    //vTaskDelay(delayTicks);
-    this->delay_ms(_delay_ms);
+	if (this->isConnected())
+	{
+		this->inputMediaKeys->setValue((uint8_t*)keys, sizeof(MediaKeyReport));
+		this->inputMediaKeys->notify();
+#if defined(USE_NIMBLE)				
+		//vTaskDelay(delayTicks);
+		this->delay_ms(_delay_ms);
 #endif // USE_NIMBLE
-  }	
+	}	
 }
 
 extern
@@ -218,30 +241,30 @@ const uint8_t _asciimap[128] PROGMEM;
 #define SHIFT 0x80
 const uint8_t _asciimap[128] =
 {
-	0x00,             // NUL
-	0x00,             // SOH
-	0x00,             // STX
-	0x00,             // ETX
-	0x00,             // EOT
-	0x00,             // ENQ
-	0x00,             // ACK
-	0x00,             // BEL
+	0x00,						 // NUL
+	0x00,						 // SOH
+	0x00,						 // STX
+	0x00,						 // ETX
+	0x00,						 // EOT
+	0x00,						 // ENQ
+	0x00,						 // ACK
+	0x00,						 // BEL
 	0x2a,			// BS	Backspace
 	0x2b,			// TAB	Tab
 	0x28,			// LF	Enter
-	0x00,             // VT
-	0x00,             // FF
-	0x00,             // CR
-	0x00,             // SO
-	0x00,             // SI
-	0x00,             // DEL
-	0x00,             // DC1
-	0x00,             // DC2
-	0x00,             // DC3
-	0x00,             // DC4
-	0x00,             // NAK
-	0x00,             // SYN
-	0x00,             // ETB
+	0x00,						 // VT
+	0x00,						 // FF
+	0x00,						 // CR
+	0x00,						 // SO
+	0x00,						 // SI
+	0x00,						 // DEL
+	0x00,						 // DC1
+	0x00,						 // DC2
+	0x00,						 // DC3
+	0x00,						 // DC4
+	0x00,							// NAK
+	0x00,	 // SYN
+	0x00,	 // ETB
 	0x00,             // CAN
 	0x00,             // EM
 	0x00,             // SUB
@@ -499,8 +522,12 @@ size_t BleKeyboard::write(const uint8_t *buffer, size_t size) {
 	}
 	return n;
 }
-
-void BleKeyboard::onConnect(BLEServer* pServer) {
+#ifndef USE_NIMBLE
+void BleKeyboard::onConnect(BLEServer* pServer) 
+#else 
+void BleKeyboard::onConnect(BLEServer* pServer, NimBLEConnInfo& connInfo) 
+#endif
+{
   this->connected = true;
 
 #if !defined(USE_NIMBLE)
@@ -513,8 +540,12 @@ void BleKeyboard::onConnect(BLEServer* pServer) {
 #endif // !USE_NIMBLE
 
 }
-
-void BleKeyboard::onDisconnect(BLEServer* pServer) {
+#ifndef USE_NIMBLE
+void BleKeyboard::onDisconnect(BLEServer* pServer)
+#else 
+void BleKeyboard::onDisconnect(BLEServer* pServer, NimBLEConnInfo& connInfo, int reason)
+#endif
+{
   this->connected = false;
 
 #if !defined(USE_NIMBLE)
@@ -528,8 +559,12 @@ void BleKeyboard::onDisconnect(BLEServer* pServer) {
 
 #endif // !USE_NIMBLE
 }
-
-void BleKeyboard::onWrite(BLECharacteristic* me) {
+#ifndef USE_NIMBLE
+void BleKeyboard::onWrite(BLECharacteristic* me)
+#else
+void BleKeyboard::onWrite(BLECharacteristic* me, NimBLEConnInfo& connInfo)
+#endif
+{
   uint8_t* value = (uint8_t*)(me->getValue().c_str());
   (void)value;
   ESP_LOGI(LOG_TAG, "special keys: %d", *value);
@@ -545,3 +580,4 @@ void BleKeyboard::delay_ms(uint64_t ms) {
     while(esp_timer_get_time() < e) {}
   }
 }
+//#pragma warning( pop )
